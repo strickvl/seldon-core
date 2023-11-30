@@ -22,5 +22,4 @@ class ALE(ExplainerWrapper):
         arr = np.array(inputs)
         logging.info("ALE call with %s", self.kwargs)
         logging.info("ALE data shape %s", arr.shape)
-        ale_exp = self.ale.explain(arr, **self.kwargs)
-        return ale_exp
+        return self.ale.explain(arr, **self.kwargs)

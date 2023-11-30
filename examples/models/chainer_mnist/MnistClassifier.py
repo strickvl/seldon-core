@@ -43,8 +43,8 @@ def main():
                         help='Number of units')
     args = parser.parse_args()
 
-    print('GPU: {}'.format(args.gpu))
-    print('# unit: {}'.format(args.unit))
+    print(f'GPU: {args.gpu}')
+    print(f'# unit: {args.unit}')
     print('')
 
     # Prepare data

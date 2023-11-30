@@ -121,4 +121,4 @@ spec:
 if __name__ == "__main__":
     import kfp.compiler as compiler
 
-    compiler.Compiler().compile(nlp_pipeline, __file__ + ".tar.gz")
+    compiler.Compiler().compile(nlp_pipeline, f"{__file__}.tar.gz")

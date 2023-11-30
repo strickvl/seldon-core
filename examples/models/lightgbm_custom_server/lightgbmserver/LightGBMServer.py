@@ -36,8 +36,7 @@ class LightGBMServer(SeldonComponent):
         try:
             if not self.ready:
                 self.load()
-            result = self.bst.predict(X)
-            return result
+            return self.bst.predict(X)
         except Exception as ex:
             logging.exception("Exception during predict")
 

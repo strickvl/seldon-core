@@ -18,9 +18,7 @@ class SagemakerProxy(object):
         
     def predict(self,X,features_names):
         print("predict")
-        r = requests.post(
-            self.endpoint+"/invocations",
-            json = X.tolist())
+        r = requests.post(f"{self.endpoint}/invocations", json = X.tolist())
         if r.status_code == 200:
             result = encoders.decode(r.content,r.headers.get('content-type'))
             if len(result.shape) == 1:

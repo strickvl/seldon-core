@@ -49,7 +49,4 @@ class AnchorTabular(ExplainerWrapper):
         if hasattr(self, "seed"):
             np.random.seed(self.seed)
         arr = np.array(inputs)
-        # We assume the input has batch dimension
-        # but Alibi explainers presently assume no batch
-        anchor_exp = self.anchors_tabular.explain(arr[0], **self.kwargs)
-        return anchor_exp
+        return self.anchors_tabular.explain(arr[0], **self.kwargs)

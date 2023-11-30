@@ -24,7 +24,7 @@ class H2OModel():
         h2o.init(nthreads = -1, max_mem_size = 8)
         print('Machine started!')
 
-        print('Loading model from %s...' % MODEL_PATH)
+        print(f'Loading model from {MODEL_PATH}...')
         self.model = h2o.load_model(MODEL_PATH)
         print('Model Loaded')
             

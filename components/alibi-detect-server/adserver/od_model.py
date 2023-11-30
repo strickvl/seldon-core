@@ -90,35 +90,36 @@ class AlibiDetectOutlierModel(CEModel):  # pylint:disable=c-extension-no-member
         try:
             X = read_inputs_as_numpy(inputs)
         except Exception as e:
-            raise Exception(
-                "Failed to initialize NumPy array from inputs: %s, %s" % (e, inputs)
+            raise Exception(f"Failed to initialize NumPy array from inputs: {e}, {inputs}")
+
+        ret_instance_score = bool(
+            (
+                HEADER_RETURN_INSTANCE_SCORE in headers
+                and headers[HEADER_RETURN_INSTANCE_SCORE] == "true"
             )
-
-        ret_instance_score = False
-        if (
-            HEADER_RETURN_INSTANCE_SCORE in headers
-            and headers[HEADER_RETURN_INSTANCE_SCORE] == "true"
-        ) or RETURN_INSTANCE_SCORE:
-            ret_instance_score = True
-
-        outlier_type = "instance"
-        if HEADER_OUTLIER_TYPE in headers and headers[HEADER_OUTLIER_TYPE]:
-            outlier_type = headers[HEADER_OUTLIER_TYPE]
-        ret_feature_score = False
-        if (
-            HEADER_RETURN_FEATURE_SCORE in headers
-            and headers[HEADER_RETURN_FEATURE_SCORE] == "true"
-        ) or RETURN_FEATURE_SCORE:
-            ret_feature_score = True
+            or RETURN_INSTANCE_SCORE
+        )
+        outlier_type = (
+            headers[HEADER_OUTLIER_TYPE]
+            if HEADER_OUTLIER_TYPE in headers and headers[HEADER_OUTLIER_TYPE]
+            else "instance"
+        )
+        ret_feature_score = bool(
+            (
+                HEADER_RETURN_FEATURE_SCORE in headers
+                and headers[HEADER_RETURN_FEATURE_SCORE] == "true"
+            )
+            or RETURN_FEATURE_SCORE
+        )
         od_preds = {}
         name = self.model.meta["name"]
-        if (
-            name == "IForest"
-            or name == "OutlierAEGMM"
-            or name == "Mahalanobis"
-            or name == "SpectralResidual"
-            or name == "OutlierVAEGMM"
-        ):
+        if name in [
+            "IForest",
+            "OutlierAEGMM",
+            "Mahalanobis",
+            "SpectralResidual",
+            "OutlierVAEGMM",
+        ]:
             od_preds = self.model.predict(
                 X,
                 # scores used to determine outliers

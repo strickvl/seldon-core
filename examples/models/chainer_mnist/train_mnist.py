@@ -55,10 +55,10 @@ def main():
 
     device = chainer.get_device(args.device)
 
-    print('Device: {}'.format(device))
-    print('# unit: {}'.format(args.unit))
-    print('# Minibatch-size: {}'.format(args.batchsize))
-    print('# epoch: {}'.format(args.epoch))
+    print(f'Device: {device}')
+    print(f'# unit: {args.unit}')
+    print(f'# Minibatch-size: {args.batchsize}')
+    print(f'# epoch: {args.epoch}')
     print('')
 
     # Set up a neural network to train

@@ -390,7 +390,7 @@ except subprocess.CalledProcessError:
     except subprocess.CalledProcessError:
         git_rev = ""
 if git_rev:
-    git_rev = git_rev.splitlines()[0] + "/"
+    git_rev = f"{git_rev.splitlines()[0]}/"
 
 nbsphinx_prolog = (
     r"""

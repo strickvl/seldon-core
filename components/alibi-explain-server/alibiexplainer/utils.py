@@ -148,5 +148,4 @@ def _grpc(
     request = prediction_pb2.SeldonMessage(data=datadef)
     request_metadata = ((SELDON_SKIP_LOGGING_HEADER, "true"),)
     response = stub.Predict(request=request, metadata=request_metadata)
-    arr_resp = tf.make_ndarray(response.data.tftensor)
-    return arr_resp
+    return tf.make_ndarray(response.data.tftensor)

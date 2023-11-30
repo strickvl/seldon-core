@@ -52,10 +52,7 @@ def _column_values(column: pd.Series) -> Union[List, float]:
     -------
         List of unique values for categorical variables
     """
-    if column.dtype != np.number:
-        return column.unique().tolist()
-    else:
-        return np.NaN
+    return column.unique().tolist() if column.dtype != np.number else np.NaN
 
 
 def create_seldon_api_testing_file(

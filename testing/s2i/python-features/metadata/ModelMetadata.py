@@ -11,7 +11,7 @@ class ModelMetadata:
     def init_metadata(self):
         logging.info("metadata method  called")
 
-        meta = {
+        return {
             "name": "my-model-name",
             "versions": ["my-model-version-01"],
             "platform": "seldon",
@@ -24,5 +24,3 @@ class ModelMetadata:
             "outputs": [{"messagetype": "tensor", "schema": {"shape": [1]}}],
             "custom": {"tag-key": "tag-value"},
         }
-
-        return meta

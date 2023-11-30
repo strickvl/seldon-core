@@ -199,7 +199,7 @@ class SeldonClient:
             http_client.HTTPConnection.debuglevel = 1
         self.config = locals().copy()
         del self.config["self"]
-        logger.debug("Configuration:" + str(self.config))
+        logger.debug(f"Configuration:{self.config}")
 
     def _gather_args(self, **kwargs):
         c2 = {**self.config}
@@ -234,11 +234,11 @@ class SeldonClient:
         -------
 
         """
-        if not (gateway == "ambassador" or gateway == "seldon" or gateway == "istio"):
+        if gateway not in {"ambassador", "seldon", "istio"}:
             raise SeldonClientException(
                 "Valid values for gateway are 'ambassador', 'istio', or 'seldon'"
             )
-        if not (transport == "rest" or transport == "grpc"):
+        if transport not in {"rest", "grpc"}:
             raise SeldonClientException(
                 "Valid values for transport are 'rest' or 'grpc'"
             )
@@ -254,9 +254,9 @@ class SeldonClient:
             raise SeldonClientException(
                 "Valid values for method are 'predict', 'route', 'transform-input', 'transform-output', 'aggregate' or None"
             )
-        if not (data is None or isinstance(data, np.ndarray)):
+        if data is not None and not isinstance(data, np.ndarray):
             raise SeldonClientException("Valid values for data are None or numpy array")
-        if not (client_return_type == "proto" or client_return_type == "dict"):
+        if client_return_type not in {"proto", "dict"}:
             raise SeldonClientException(
                 "Valid values for client_return_type are proto or dict"
             )
@@ -362,7 +362,7 @@ class SeldonClient:
             ssl=ssl,
         )
         self._validate_args(**k)
-        if k["gateway"] == "ambassador" or k["gateway"] == "istio":
+        if k["gateway"] in ["ambassador", "istio"]:
             if k["transport"] == "rest":
                 return rest_predict_gateway(**k)
             elif k["transport"] == "grpc":
@@ -454,7 +454,7 @@ class SeldonClient:
             ssl=ssl,
         )
         self._validate_args(**k)
-        if k["gateway"] == "ambassador" or k["gateway"] == "istio":
+        if k["gateway"] in ["ambassador", "istio"]:
             if k["transport"] == "rest":
                 return rest_feedback_gateway(
                     prediction_request,
@@ -584,15 +584,14 @@ class SeldonClient:
             ssl=ssl,
         )
         self._validate_args(**k)
-        if k["gateway"] == "ambassador" or k["gateway"] == "istio":
-            if k["transport"] == "rest":
-                return explain_predict_gateway(**k)
-            elif k["transport"] == "grpc":
-                raise SeldonClientException("gRPC not supported for explain")
-            else:
-                raise SeldonClientException("Unknown transport " + k["transport"])
-        else:
+        if k["gateway"] not in ["ambassador", "istio"]:
             raise SeldonClientException("Unknown gateway " + k["gateway"])
+        if k["transport"] == "rest":
+            return explain_predict_gateway(**k)
+        elif k["transport"] == "grpc":
+            raise SeldonClientException("gRPC not supported for explain")
+        else:
+            raise SeldonClientException("Unknown transport " + k["transport"])
 
     def microservice(
         self,
@@ -685,24 +684,24 @@ class SeldonClient:
         )
         self._validate_args(**k)
         if k["transport"] == "rest":
-            if (
-                k["method"] == "predict"
-                or k["method"] == "transform-input"
-                or k["method"] == "transform-output"
-                or k["method"] == "route"
-            ):
+            if k["method"] in [
+                "predict",
+                "transform-input",
+                "transform-output",
+                "route",
+            ]:
                 return microservice_api_rest_seldon_message(**k)
             elif k["method"] == "aggregate":
                 return microservice_api_rest_aggregate(**k)
             else:
                 raise SeldonClientException("Unknown method " + k["method"])
         elif k["transport"] == "grpc":
-            if (
-                k["method"] == "predict"
-                or k["method"] == "transform-input"
-                or k["method"] == "transform-output"
-                or k["method"] == "route"
-            ):
+            if k["method"] in [
+                "predict",
+                "transform-input",
+                "transform-output",
+                "route",
+            ]:
                 return microservice_api_grpc_seldon_message(**k)
             elif k["method"] == "aggregate":
                 return microservice_api_grpc_aggregate(**k)
@@ -850,7 +849,7 @@ def microservice_api_rest_seldon_message(
         request = prediction_pb2.SeldonMessage(data=datadef)
     payload = seldon_message_to_json(request)
     response_raw = requests.post(
-        "http://" + microservice_endpoint + "/" + method,
+        f"http://{microservice_endpoint}/{method}",
         data={"json": json.dumps(payload)},
     )
     if response_raw.status_code == 200:
@@ -901,7 +900,7 @@ def microservice_api_rest_aggregate(
     """
     if datas is None:
         datas = []
-        for n in range(ndatas):
+        for _ in range(ndatas):
             data = np.random.rand(*shape)
             datas.append(data)
     msgs = []
@@ -916,7 +915,7 @@ def microservice_api_rest_aggregate(
     request = prediction_pb2.SeldonMessageList(seldonMessages=msgs)
     payload = seldon_messages_to_json(request)
     response_raw = requests.post(
-        "http://" + microservice_endpoint + "/aggregate",
+        f"http://{microservice_endpoint}/aggregate",
         data={"json": json.dumps(payload)},
     )
     if response_raw.status_code == 200:
@@ -963,7 +962,7 @@ def microservice_api_rest_feedback(
     )
     payload = feedback_to_json(request)
     response_raw = requests.post(
-        "http://" + microservice_endpoint + "/send-feedback",
+        f"http://{microservice_endpoint}/send-feedback",
         data={"json": json.dumps(payload)},
     )
     if response_raw.status_code == 200:
@@ -1053,17 +1052,17 @@ def microservice_api_grpc_seldon_message(
         if method == "predict":
             stub_model = prediction_pb2_grpc.ModelStub(channel)
             response = stub_model.Predict(request=request)
+        elif method == "route":
+            stub = prediction_pb2_grpc.GenericStub(channel)
+            response = stub.Route(request=request)
         elif method == "transform-input":
             stub = prediction_pb2_grpc.GenericStub(channel)
             response = stub.TransformInput(request=request)
         elif method == "transform-output":
             stub = prediction_pb2_grpc.GenericStub(channel)
             response = stub.TransformOutput(request=request)
-        elif method == "route":
-            stub = prediction_pb2_grpc.GenericStub(channel)
-            response = stub.Route(request=request)
         else:
-            raise SeldonClientException("Unknown method:" + method)
+            raise SeldonClientException(f"Unknown method:{method}")
 
         channel.close()
         return SeldonClientPrediction(request, response, True, "")
@@ -1113,7 +1112,7 @@ def microservice_api_grpc_aggregate(
     """
     if datas is None:
         datas = []
-        for n in range(ndatas):
+        for _ in range(ndatas):
             data = np.random.rand(*shape)
             datas.append(data)
     msgs = []
@@ -1266,21 +1265,21 @@ def rest_predict_seldon(
         payload = seldon_message_to_json(request)
 
     response_raw = requests.post(
-        "http://" + gateway_endpoint + "/api/v1.0/predictions", json=payload
+        f"http://{gateway_endpoint}/api/v1.0/predictions", json=payload
     )
     if response_raw.status_code == 200:
         success = True
         msg = ""
     else:
         success = False
-        msg = str(response_raw.status_code) + ":" + response_raw.reason
+        msg = f"{response_raw.status_code}:{response_raw.reason}"
     try:
-        if len(response_raw.text) > 0:
+        if response_raw.text != "":
             try:
-                if client_return_type == "proto":
-                    response = json_to_seldon_message(response_raw.json())
-                elif client_return_type == "dict":
+                if client_return_type == "dict":
                     response = response_raw.json()
+                elif client_return_type == "proto":
+                    response = json_to_seldon_message(response_raw.json())
                 else:
                     SeldonClientException("Invalid client_return_type")
             except:
@@ -1351,20 +1350,19 @@ def grpc_predict_seldon(
         request = raw_data
     elif raw_data:
         request = json_to_seldon_message(raw_data)
+    elif bin_data is not None:
+        request = prediction_pb2.SeldonMessage(binData=bin_data)
+    elif str_data is not None:
+        request = prediction_pb2.SeldonMessage(strData=str_data)
+    elif json_data is not None:
+        request = json_to_seldon_message({"jsonData": json_data})
+    elif custom_data is not None:
+        request = prediction_pb2.SeldonMessage(customData=custom_data)
     else:
-        if bin_data is not None:
-            request = prediction_pb2.SeldonMessage(binData=bin_data)
-        elif str_data is not None:
-            request = prediction_pb2.SeldonMessage(strData=str_data)
-        elif json_data is not None:
-            request = json_to_seldon_message({"jsonData": json_data})
-        elif custom_data is not None:
-            request = prediction_pb2.SeldonMessage(customData=custom_data)
-        else:
-            if data is None:
-                data = np.random.rand(*shape)
-            datadef = array_to_grpc_datadef(payload_type, data, names=names)
-            request = prediction_pb2.SeldonMessage(data=datadef)
+        if data is None:
+            data = np.random.rand(*shape)
+        datadef = array_to_grpc_datadef(payload_type, data, names=names)
+        request = prediction_pb2.SeldonMessage(data=datadef)
 
     channel = grpc.insecure_channel(
         gateway_endpoint,
@@ -1478,14 +1476,8 @@ def rest_predict_gateway(
             request = prediction_pb2.SeldonMessage(data=datadef, meta=metaKV)
         payload = seldon_message_to_json(request)
 
-    if headers is not None:
-        req_headers = headers.copy()
-    else:
-        req_headers = {}
-    if call_credentials is None or ssl is False:
-        scheme = "http"
-    else:
-        scheme = "https"
+    req_headers = headers.copy() if headers is not None else {}
+    scheme = "http" if call_credentials is None or not ssl else "https"
     if call_credentials is not None:
         if call_credentials.token is not None:
             req_headers["X-Auth-Token"] = call_credentials.token
@@ -1502,26 +1494,11 @@ def rest_predict_gateway(
         )
     else:
         if gateway_prefix is None:
-            if namespace is None:
-                url = (
-                    scheme
-                    + "://"
-                    + gateway_endpoint
-                    + "/seldon/"
-                    + deployment_name
-                    + "/api/v1.0/predictions"
-                )
-            else:
-                url = (
-                    scheme
-                    + "://"
-                    + gateway_endpoint
-                    + "/seldon/"
-                    + namespace
-                    + "/"
-                    + deployment_name
-                    + "/api/v1.0/predictions"
-                )
+            url = (
+                f"{scheme}://{gateway_endpoint}/seldon/{deployment_name}/api/v1.0/predictions"
+                if namespace is None
+                else f"{scheme}://{gateway_endpoint}/seldon/{namespace}/{deployment_name}/api/v1.0/predictions"
+            )
         else:
             url = (
                 scheme
@@ -1542,7 +1519,7 @@ def rest_predict_gateway(
                 channel_credentials.root_certificates_file,
                 channel_credentials.private_key_file,
             )
-    logger.debug("URL is " + url)
+    logger.debug(f"URL is {url}")
     response_raw = requests.post(
         url, json=payload, headers=req_headers, verify=verify, cert=cert
     )
@@ -1551,15 +1528,15 @@ def rest_predict_gateway(
         msg = ""
     else:
         success = False
-        msg = str(response_raw.status_code) + ":" + response_raw.reason
+        msg = f"{response_raw.status_code}:{response_raw.reason}"
     try:
-        if len(response_raw.text) > 0:
+        if response_raw.text != "":
             try:
                 logger.debug("Raw response: %s", response_raw.text)
-                if client_return_type == "proto":
-                    response = json_to_seldon_message(response_raw.json())
-                elif client_return_type == "dict":
+                if client_return_type == "dict":
                     response = response_raw.json()
+                elif client_return_type == "proto":
+                    response = json_to_seldon_message(response_raw.json())
                 else:
                     raise SeldonClientException("Invalid client_return_type")
             except:

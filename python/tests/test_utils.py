@@ -67,10 +67,7 @@ class UserObject:
         logging.info("Feedback called")
 
     def tags(self):
-        if self.ret_meta:
-            return {"inc_meta": self.inc_meta}
-        else:
-            return {"mytag": 1}
+        return {"inc_meta": self.inc_meta} if self.ret_meta else {"mytag": 1}
 
     def metrics(self):
         if self.metrics_ok:

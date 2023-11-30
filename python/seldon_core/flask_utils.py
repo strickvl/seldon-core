@@ -22,12 +22,12 @@ def get_multi_form_data_request() -> Dict:
        JSON Dict
 
     """
-    req_dict = {}
-    for key in request.form:
-        if key == "strData":
-            req_dict[key] = request.form.get(key)
-        else:
-            req_dict[key] = json.loads(request.form.get(key))
+    req_dict = {
+        key: request.form.get(key)
+        if key == "strData"
+        else json.loads(request.form.get(key))
+        for key in request.form
+    }
     for fileKey in request.files:
         """
         The bytes data needs to be base64 encode because the protobuf trys to do base64 decode for bytes
@@ -63,11 +63,7 @@ def get_request(skip_decoding=False) -> Union[Dict, bytes]:
         j_str = request.args.get("json")
 
     if j_str:
-        if skip_decoding:
-            return j_str
-
-        return json.loads(j_str)
-
+        return j_str if skip_decoding else json.loads(j_str)
     if skip_decoding:
         try:
             data = request.get_data()
@@ -111,7 +107,7 @@ class SeldonMicroserviceException(Exception):
         self.reason = reason
 
     def to_dict(self):
-        rv = {
+        return {
             "status": {
                 "status": 1,
                 "info": self.message,
@@ -119,7 +115,6 @@ class SeldonMicroserviceException(Exception):
                 "reason": self.reason,
             }
         }
-        return rv
 
 
 ANNOTATIONS_FILE = "/etc/podinfo/annotations"

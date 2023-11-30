@@ -10,7 +10,7 @@ class FixedBase(object):
         
     def work(self):
         work = 0
-        for i in range(0,self.iterations):
+        for _ in range(0,self.iterations):
             work = work + 1
         return [work]
 

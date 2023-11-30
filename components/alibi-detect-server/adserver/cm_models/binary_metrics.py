@@ -39,15 +39,15 @@ class BinaryMetrics:
         correct = response_class == truth_class
 
         if truth_class:
-            if correct:
-                key = "seldon_metric_true_positive"
-            else:
-                key = "seldon_metric_false_negative"
+            key = (
+                "seldon_metric_true_positive"
+                if correct
+                else "seldon_metric_false_negative"
+            )
+        elif correct:
+            key = "seldon_metric_true_negative"
         else:
-            if correct:
-                key = "seldon_metric_true_negative"
-            else:
-                key = "seldon_metric_false_positive"
+            key = "seldon_metric_false_positive"
 
         metrics = [{"key": key, "type": "COUNTER", "value": 1}]
 

@@ -26,17 +26,16 @@ class MetricsModel:
                 self.scores.TP += 1
             else:
                 self.scores.FN += 1
+        elif int(predicted[0]) == int(truth[0]):
+            self.scores.TN += 1
         else:
-            if int(predicted[0]) == int(truth[0]):
-                self.scores.TN += 1
-            else:
-                self.scores.FP += 1
+            self.scores.FP += 1
         return []  # Ignore return statement as its not used
 
     def metrics(self):
         return [
-            {"type": "GAUGE", "key": f"true_pos", "value": self.scores.TP},
-            {"type": "GAUGE", "key": f"true_neg", "value": self.scores.FN},
-            {"type": "GAUGE", "key": f"false_pos", "value": self.scores.TN},
-            {"type": "GAUGE", "key": f"false_neg", "value": self.scores.FP},
+            {"type": "GAUGE", "key": "true_pos", "value": self.scores.TP},
+            {"type": "GAUGE", "key": "true_neg", "value": self.scores.FN},
+            {"type": "GAUGE", "key": "false_pos", "value": self.scores.TN},
+            {"type": "GAUGE", "key": "false_neg", "value": self.scores.FP},
         ]

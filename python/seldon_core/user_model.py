@@ -46,10 +46,7 @@ class SeldonResponse:
     def create(
         cls, data: Union[np.ndarray, List, Dict, str, bytes, "SeldonResponse"]
     ) -> "SeldonResponse":
-        if isinstance(data, cls):
-            return data
-        else:
-            return cls(data=data)
+        return data if isinstance(data, cls) else cls(data=data)
 
 
 class SeldonComponent:
@@ -189,23 +186,22 @@ def client_class_names(
     -------
        Class names
     """
-    if len(predictions.shape) > 1:
-        if hasattr(user_model, "class_names"):
-            if inspect.ismethod(getattr(user_model, "class_names")):
-                try:
-                    return user_model.class_names()
-                except SeldonNotImplementedError:
-                    pass
-            else:
-                logger.warning(
-                    "class_names attribute is deprecated. Please define a class_names method"
-                )
-                return user_model.class_names
-        logger.debug("class_names is not implemented")
-        n_targets = predictions.shape[1]
-        return ["t:{}".format(i) for i in range(n_targets)]
-    else:
+    if len(predictions.shape) <= 1:
         return []
+    if hasattr(user_model, "class_names"):
+        if inspect.ismethod(getattr(user_model, "class_names")):
+            try:
+                return user_model.class_names()
+            except SeldonNotImplementedError:
+                pass
+        else:
+            logger.warning(
+                "class_names attribute is deprecated. Please define a class_names method"
+            )
+            return user_model.class_names
+    logger.debug("class_names is not implemented")
+    n_targets = predictions.shape[1]
+    return [f"t:{i}" for i in range(n_targets)]
 
 
 def client_predict(
@@ -369,17 +365,11 @@ def client_custom_metrics(
                 )
 
             seldon_metrics.update(metrics, method)
-            if INCLUDE_METRICS_IN_CLIENT_RESPONSE:
-                return metrics + runtime_metrics
-            else:
-                return []
+            return metrics + runtime_metrics if INCLUDE_METRICS_IN_CLIENT_RESPONSE else []
         except SeldonNotImplementedError:
             pass
     logger.debug("custom_metrics is not implemented")
-    if INCLUDE_METRICS_IN_CLIENT_RESPONSE:
-        return runtime_metrics
-    else:
-        return []
+    return runtime_metrics if INCLUDE_METRICS_IN_CLIENT_RESPONSE else []
 
 
 def client_feature_names(
@@ -523,10 +513,9 @@ def client_health_status(
     -------
        Health check results
     """
-    if hasattr(user_model, "health_status"):
-        try:
-            return user_model.health_status()
-        except SeldonNotImplementedError:
-            return "not implemented - assuming healthy"
-    else:
+    if not hasattr(user_model, "health_status"):
         return "healthy"
+    try:
+        return user_model.health_status()
+    except SeldonNotImplementedError:
+        return "not implemented - assuming healthy"

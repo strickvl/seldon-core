@@ -77,8 +77,7 @@ def produce(conf, topic, file, protoName):
 def produce_proto(producer, topic, file, protoName):
     with open(file, "rb") as fp:
         cnt = 0
-        szBytes = fp.read(4)
-        while szBytes:
+        while szBytes := fp.read(4):
             cnt = cnt + 1
             sz = int.from_bytes(szBytes, byteorder='big')
             data = fp.read(sz)
@@ -88,7 +87,6 @@ def produce_proto(producer, topic, file, protoName):
             if cnt % 100 == 0:
                 print("Messages sent:",cnt)
                 producer.flush()
-            szBytes = fp.read(4)
     producer.flush()
     print("Final messages sent count:", cnt)
 

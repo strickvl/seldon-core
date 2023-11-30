@@ -17,10 +17,10 @@ class Model:
 
     def predict(self, X, feature_names=[]):
         """Run input X through loanclassifier model."""
-        logging.info("Input: " + str(X))
+        logging.info(f"Input: {str(X)}")
 
         X_prep = self.preprocessor.transform(X)
         output = self.clf.predict_proba(X_prep)
 
-        logging.info("Output: " + str(output))
+        logging.info(f"Output: {str(output)}")
         return output

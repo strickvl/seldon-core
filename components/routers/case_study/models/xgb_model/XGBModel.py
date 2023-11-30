@@ -22,17 +22,17 @@ class XGBModel(object):
         logger.debug("RF model send-feedback entered")
         logger.debug(f"Truth: {truth}, Reward: {reward}")
 
-        if reward == 1:
-            if truth == 1:
-                self.cm["tp"] += 1
-            if truth == 0:
-                self.cm["tn"] += 1
         if reward == 0:
-            if truth == 1:
-                self.cm["fn"] += 1
             if truth == 0:
                 self.cm["fp"] += 1
 
+            elif truth == 1:
+                self.cm["fn"] += 1
+        elif reward == 1:
+            if truth == 0:
+                self.cm["tn"] += 1
+            elif truth == 1:
+                self.cm["tp"] += 1
         self.tries += 1
         self.success = self.success + 1 if reward else self.success
         self.value = self.success / self.tries

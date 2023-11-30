@@ -60,6 +60,4 @@ class ImageNetTransformer(object):
         ma = np.argmax(single_result)
         name = self.cnames[ma]
 
-        response = prediction_pb2.SeldonMessage(strData = name)
-        
-        return response
+        return prediction_pb2.SeldonMessage(strData = name)

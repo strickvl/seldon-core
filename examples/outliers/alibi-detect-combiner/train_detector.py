@@ -77,10 +77,10 @@ def serialize_pipeline(preprocessor, od):
     """Serialize preprocessor and model."""
     print("Serializing preprocessor and model.")
 
-    with open(DATA_DIR + "/preprocessor.dill", "wb") as prep_f:
+    with open(f"{DATA_DIR}/preprocessor.dill", "wb") as prep_f:
         dill.dump(preprocessor, prep_f)
 
-    with open(DATA_DIR + "/model.dill", "wb") as model_f:
+    with open(f"{DATA_DIR}/model.dill", "wb") as model_f:
         dill.dump(od, model_f)
 
 

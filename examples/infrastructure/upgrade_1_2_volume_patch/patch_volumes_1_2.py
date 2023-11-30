@@ -23,8 +23,7 @@ def patch_volumes_seldon_1_2():
         namespace = namespace.replace("namespace/", "")
         sdeps_raw = run(f"kubectl get sdep -o yaml -n {namespace}")
         sdeps_dict = yaml.safe_load(sdeps_raw)
-        sdep_list = sdeps_dict.get("items")
-        if sdep_list:
+        if sdep_list := sdeps_dict.get("items"):
             for sdep in sdep_list:
                 name = sdep.get("metadata", {}).get("name")
                 print(f"Processing {name} in namespace {namespace}")

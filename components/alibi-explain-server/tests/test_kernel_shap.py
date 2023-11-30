@@ -15,6 +15,6 @@ def test_kernel_shap():
     kernel_shap = KernelShap(alibi_model)
     wine = load_wine()
     X_test = wine.data
-    explanation = kernel_shap.explain(X_test[0:1].tolist())
+    explanation = kernel_shap.explain(X_test[:1].tolist())
     exp_json = json.loads(explanation.to_json())
     assert exp_json["meta"]["name"] == "KernelShap"

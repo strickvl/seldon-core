@@ -13,8 +13,7 @@ def grpc_request_ambassador_bindata(deploymentName,namespace,endpoint="localhost
         metadata = [('seldon',deploymentName)]
     else:
         metadata = [('seldon',deploymentName),('namespace',namespace)]
-    response = stub.Predict(request=request,metadata=metadata)
-    return response
+    return stub.Predict(request=request,metadata=metadata)
 
 
 def getImageBytes(path):
@@ -39,11 +38,11 @@ def main():
     input_images = args.test_input
     with open(input_images) as f:
         lines = f.readlines()
-    
+
         i = 0
         matched = 0
         durations = []
-        for j in range(args.repeats): # repeat the sequence of requests
+        for _ in range(args.repeats):
             for line in lines:
                 path, label = line.strip().split(" ")
                 X = getImageBytes(path)

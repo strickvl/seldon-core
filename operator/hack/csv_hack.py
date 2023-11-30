@@ -10,8 +10,7 @@ def getOpts(cmd_line_args):
     )
     parser.add_argument("path", help="the output path to save result")
     parser.add_argument("version", help="the release version")
-    opts = parser.parse_args(cmd_line_args)
-    return opts
+    return parser.parse_args(cmd_line_args)
 
 
 def remove_versions(csv):
@@ -22,13 +21,15 @@ def remove_versions(csv):
 
 def update_container_image(csv, version):
     # Update Operator Image
-    csv["metadata"]["annotations"]["containerImage"] = (
-        "docker.io/seldonio/seldon-core-operator:" + version
-    )
+    csv["metadata"]["annotations"][
+        "containerImage"
+    ] = f"docker.io/seldonio/seldon-core-operator:{version}"
 
-    csv["spec"]["install"]["spec"]["deployments"][0]["spec"]["template"]["spec"][
-        "containers"
-    ][0]["image"] = ("docker.io/seldonio/seldon-core-operator:" + version)
+    csv["spec"]["install"]["spec"]["deployments"][0]["spec"]["template"][
+        "spec"
+    ]["containers"][0][
+        "image"
+    ] = f"docker.io/seldonio/seldon-core-operator:{version}"
 
     # Update Executor image
     for n, env in enumerate(
@@ -37,11 +38,11 @@ def update_container_image(csv, version):
         ][0]["env"]
     ):
         if env["name"] == "EXECUTOR_CONTAINER_IMAGE_AND_VERSION":
-            csv["spec"]["install"]["spec"]["deployments"][0]["spec"]["template"]["spec"][
-                "containers"
-            ][0]["env"][n]["value"] = (
-                "docker.io/seldonio/seldon-core-executor:" + version
-            )
+            csv["spec"]["install"]["spec"]["deployments"][0]["spec"][
+                "template"
+            ]["spec"]["containers"][0]["env"][n][
+                "value"
+            ] = f"docker.io/seldonio/seldon-core-executor:{version}"
     return csv
 
 

@@ -43,7 +43,7 @@ class TfServingProxy(object):
         self.stub = prediction_service_pb2_grpc.PredictionServiceStub(channel)
 
         # rest
-        self.rest_endpoint = rest_endpoint + "/v1/models/" + model_name + ":predict"
+        self.rest_endpoint = f"{rest_endpoint}/v1/models/{model_name}:predict"
         self.model_name = model_name
         if signature_name is None:
             self.signature_name = signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY
@@ -67,12 +67,11 @@ class TfServingProxy(object):
         if request_data_type not in ["data", "customData"]:
             raise Exception("strData, binData and jsonData not supported.")
 
-        if request_data_type == "data":
-            result = self._predict_grpc_data(request, default_data_type)
-        else:
-            result = self._predict_grpc_custom_data(request)
-
-        return result
+        return (
+            self._predict_grpc_data(request, default_data_type)
+            if request_data_type == "data"
+            else self._predict_grpc_custom_data(request)
+        )
 
     def _predict_grpc_data(self, request, default_data_type):
         tfrequest = predict_pb2.PredictRequest()
@@ -125,8 +124,7 @@ class TfServingProxy(object):
         # handle prediction
         tfrequest.model_spec.name = self.model_name
         tfrequest.model_spec.signature_name = self.signature_name
-        tfresponse = self.stub.Predict(tfrequest)
-        return tfresponse
+        return self.stub.Predict(tfrequest)
 
     def predict(self, X, features_names=[]):
         """
@@ -139,7 +137,7 @@ class TfServingProxy(object):
         else:
             log.debug(f"Data Request: {X}")
             data = {"instances": X.tolist()}
-            if not self.signature_name is None:
+            if self.signature_name is not None:
                 data["signature_name"] = self.signature_name
 
         response = requests.post(self.rest_endpoint, data=json.dumps(data))
@@ -158,10 +156,12 @@ class TfServingProxy(object):
                 return result
         else:
             log.warning(
-                "Error from server: "
-                + str(response)
-                + " content: "
-                + str(response.text)
+                (
+                    "Error from server: "
+                    + str(response)
+                    + " content: "
+                    + response.text
+                )
             )
             try:
                 return response.json()

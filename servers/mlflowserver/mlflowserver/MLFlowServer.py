@@ -42,7 +42,7 @@ class MLFlowServer(SeldonComponent):
         if self.xtype == "ndarray":
             result = self._model.predict(X)
         else:
-            if feature_names is not None and len(feature_names) > 0:
+            if feature_names is not None and feature_names:
                 df = pd.DataFrame(data=X, columns=feature_names)
             else:
                 df = pd.DataFrame(data=X)

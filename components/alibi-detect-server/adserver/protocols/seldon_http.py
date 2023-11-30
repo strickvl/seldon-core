@@ -26,13 +26,11 @@ def _extract_list(body: Dict) -> List:
         return data_def.get("ndarray")
     elif "tftensor" in data_def:
         arr = np.array(data_def["tftensor"]["float_val"])
-        shape = []
-        for dim in data_def["tftensor"]["tensor_shape"]["dim"]:
-            shape.append(dim["size"])
+        shape = [dim["size"] for dim in data_def["tftensor"]["tensor_shape"]["dim"]]
         arr = arr.reshape(shape)
         return arr.tolist()
     else:
-        raise Exception("Unknown Seldon payload %s" % body)
+        raise Exception(f"Unknown Seldon payload {body}")
 
 
 def _create_seldon_data_def(array: np.ndarray, ty: SeldonPayload):
@@ -42,9 +40,9 @@ def _create_seldon_data_def(array: np.ndarray, ty: SeldonPayload):
     elif ty == SeldonPayload.NDARRAY:
         datadef["ndarray"] = array.tolist()
     elif ty == SeldonPayload.TFTENSOR:
-        raise NotImplementedError("Seldon payload %s not supported" % ty)
+        raise NotImplementedError(f"Seldon payload {ty} not supported")
     else:
-        raise Exception("Unknown Seldon payload %s" % ty)
+        raise Exception(f"Unknown Seldon payload {ty}")
     return datadef
 
 
@@ -59,7 +57,7 @@ def _get_request_ty(
     elif "tftensor" in data_def:
         return SeldonPayload.TFTENSOR
     else:
-        raise Exception("Unknown Seldon payload %s" % data_def)
+        raise Exception(f"Unknown Seldon payload {data_def}")
 
 
 def create_request(arr: np.ndarray, ty: SeldonPayload) -> Dict:
@@ -72,17 +70,17 @@ class SeldonRequestHandler(RequestHandler):
         super().__init__(request)
 
     def validate(self):
-        if not "data" in self.request:
+        if "data" not in self.request:
             raise tornado.web.HTTPError(
                 status_code=HTTPStatus.BAD_REQUEST,
                 reason='Expected key "data" in request body',
             )
         ty = _get_request_ty(self.request)
-        if not (
-            ty == SeldonPayload.TENSOR
-            or ty == SeldonPayload.NDARRAY
-            or ty == SeldonPayload.TFTENSOR
-        ):
+        if ty not in [
+            SeldonPayload.TENSOR,
+            SeldonPayload.NDARRAY,
+            SeldonPayload.TFTENSOR,
+        ]:
             raise tornado.web.HTTPError(
                 status_code=HTTPStatus.BAD_REQUEST,
                 reason='"data" key should contain either "tensor","ndarray", or "tftensor"',

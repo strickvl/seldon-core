@@ -63,10 +63,7 @@ soft, hard = resource.getrlimit(rsrc)
 print('RLIMIT_NOFILE soft limit changed to :', soft)
 
 def getEnviron(key,default):
-    if key in os.environ:
-        return os.environ[key]
-    else:
-        return default
+    return os.environ.get(key, default)
 
 
 class SeldonJsLocust(TaskSet):
@@ -78,7 +75,7 @@ class SeldonJsLocust(TaskSet):
         if r.status_code == 200:
             j = json.loads(r.content)
             self.access_token =  j["access_token"]
-            print("got access token "+self.access_token)
+            print(f"got access token {self.access_token}")
         else:
             print("failed to get access token")
             sys.exit(1)
@@ -102,7 +99,7 @@ class SeldonJsLocust(TaskSet):
 
     def sendFeedback(self,response):
         route = json.dumps(response["meta"]["routing"], sort_keys=True)
-        if not route in self.routeRewards:
+        if route not in self.routeRewards:
             if len(self.routesSeen) < len(self.rewardProbas):
                 self.routesSeen.append(route)
                 self.routesSeen.sort()
@@ -116,9 +113,19 @@ class SeldonJsLocust(TaskSet):
         else:
             j = {"response":response,"reward":0}
         jStr = json.dumps(j)
-        r = self.client.request("POST",self.path_prefix+"/api/v0.1/feedback",headers={"Content-Type":"application/json","Accept":"application/json","Authorization":"Bearer "+self.access_token},name="feedback",data=jStr)
-        if not r.status_code == 200:
-            print("Failed feedback request "+str(r.status_code))
+        r = self.client.request(
+            "POST",
+            f"{self.path_prefix}/api/v0.1/feedback",
+            headers={
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": f"Bearer {self.access_token}",
+            },
+            name="feedback",
+            data=jStr,
+        )
+        if r.status_code != 200:
+            print(f"Failed feedback request {str(r.status_code)}")
             if r.status_code == 401:
                 if self.oauth_enabled == "true":
                     self.get_token()
@@ -129,17 +136,27 @@ class SeldonJsLocust(TaskSet):
 
     @task
     def getPrediction(self):
-        fake_data = [[round(random(),2) for i in range(0,self.data_size)]]
-        features = ["f"+str(i) for i in range (0,self.data_size)]
+        fake_data = [[round(random(),2) for _ in range(0,self.data_size)]]
+        features = [f"f{str(i)}" for i in range (0,self.data_size)]
         j = {"data":{"names":features,"ndarray":fake_data}}
         jStr = json.dumps(j)
-        r = self.client.request("POST",self.path_prefix+"/api/v0.1/predictions",headers={"Content-Type":"application/json","Accept":"application/json","Authorization":"Bearer "+self.access_token},name="predictions",data=jStr)
+        r = self.client.request(
+            "POST",
+            f"{self.path_prefix}/api/v0.1/predictions",
+            headers={
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": f"Bearer {self.access_token}",
+            },
+            name="predictions",
+            data=jStr,
+        )
         if r.status_code == 200:
             if self.send_feedback == 1:
                 j = json.loads(r.content)
                 self.sendFeedback(j)
         else:
-            print("Failed prediction request "+str(r.status_code))
+            print(f"Failed prediction request {str(r.status_code)}")
             if r.status_code == 401:
                 if self.oauth_enabled == "true":
                     self.get_token()

@@ -19,7 +19,7 @@ logger = get_logger(__name__)
 
 class Resnet(object):
     def __init__(self):
-        self.class_names = ["class:{}".format(str(i)) for i in range(1000)]
+        self.class_names = [f"class:{str(i)}" for i in range(1000)]
         self.sess = tf.Session()
         tf.saved_model.loader.load(self.sess, ["serve"], "model", clear_devices=True)
 

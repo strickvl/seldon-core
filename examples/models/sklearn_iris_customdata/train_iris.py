@@ -14,7 +14,7 @@ def main():
     print("Model trained!")
 
     filename_p = "IrisClassifier.sav"
-    print("Saving model in %s" % filename_p)
+    print(f"Saving model in {filename_p}")
     joblib.dump(p, filename_p)
     print("Model saved!")
 

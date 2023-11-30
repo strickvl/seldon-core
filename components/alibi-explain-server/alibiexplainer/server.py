@@ -91,7 +91,7 @@ class ExplainerServer(object):
 
         self._http_server = tornado.httpserver.HTTPServer(self.create_application())
 
-        logging.info("Listening on port %s" % self.http_port)
+        logging.info(f"Listening on port {self.http_port}")
         self._http_server.bind(self.http_port)
         self._http_server.start(1)  # Single worker at present
         tornado.ioloop.IOLoop.current().start()
@@ -100,7 +100,7 @@ class ExplainerServer(object):
         if not model.name:
             raise Exception("Failed to register model, model.name must be provided.")
         self.registered_model = model
-        logging.info("Registering model:" + model.name)
+        logging.info(f"Registering model:{model.name}")
 
 
 class ExplainHandler(tornado.web.RequestHandler):
@@ -113,7 +113,7 @@ class ExplainHandler(tornado.web.RequestHandler):
         except json.decoder.JSONDecodeError as e:
             raise tornado.web.HTTPError(
                 status_code=HTTPStatus.BAD_REQUEST,
-                reason="Unrecognized request format: %s" % e,
+                reason=f"Unrecognized request format: {e}",
             )
         response = self.model.explain(body)
         self.write(response)
@@ -129,7 +129,7 @@ class ExplainV2Handler(tornado.web.RequestHandler):
         except json.decoder.JSONDecodeError as e:
             raise tornado.web.HTTPError(
                 status_code=HTTPStatus.BAD_REQUEST,
-                reason="Unrecognized request format: %s" % e,
+                reason=f"Unrecognized request format: {e}",
             )
         response = self.model.explain(body)
         self.write(response)

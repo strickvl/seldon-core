@@ -30,10 +30,7 @@ class Storage:
     def download(uri: str, out_dir: str = None) -> str:
         logging.info("Copying contents of %s to local", uri)
 
-        is_local = False
-        if uri.startswith(_LOCAL_PREFIX) or os.path.exists(uri):
-            is_local = True
-
+        is_local = bool(uri.startswith(_LOCAL_PREFIX) or os.path.exists(uri))
         if out_dir is None:
             if is_local:
                 # noop if out_dir is not set and the path is local
@@ -55,7 +52,7 @@ class Storage:
     def _download_local(uri: str, out_dir: str = None) -> str:
         local_path = uri.replace(_LOCAL_PREFIX, "", 1)
         if not os.path.exists(local_path):
-            raise RuntimeError("Local path %s does not exist." % (uri))
+            raise RuntimeError(f"Local path {uri} does not exist.")
 
         if out_dir is None:
             return local_path

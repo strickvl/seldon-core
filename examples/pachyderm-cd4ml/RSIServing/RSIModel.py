@@ -41,7 +41,7 @@ class RSIModel(object):
         return self._model.forecast(X).reset_index().to_numpy()
 
     def init_metadata(self):
-        meta = {
+        return {
             "name": "RSIModel",
             "versions": [f"{MODEL_URI}@{MODEL_COMMIT_HASH}"],
             "platform": "seldon",
@@ -52,9 +52,11 @@ class RSIModel(object):
                 }
             ],
             "outputs": [{"messagetype": "ndarray", "schema": {"shape": [2]}}],
-            "custom": {"MODEL_URI": MODEL_URI, "MODEL_COMMIT_HASH": MODEL_COMMIT_HASH},
+            "custom": {
+                "MODEL_URI": MODEL_URI,
+                "MODEL_COMMIT_HASH": MODEL_COMMIT_HASH,
+            },
         }
-        return meta
 
     # Inspired by https://github.com/SeldonIO/kfserving/blob/master/python/kfserving/kfserving/storage.py
     def _download_s3(self) -> str:

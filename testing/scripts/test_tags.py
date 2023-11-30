@@ -37,7 +37,7 @@ def create_s2i_image(s2i_python_version, model, api_type):
 
 def kind_push_s2i_image(model, api_type):
     img = get_image_name(model, api_type)
-    cmd = "kind load docker-image " + img
+    cmd = f"kind load docker-image {img}"
     logging.info(cmd)
     run(cmd, shell=True, check=True)
 
@@ -57,42 +57,58 @@ class TestTagsPythonS2i(object):
     def test_build_model_one_rest(self, s2i_python_version):
         create_s2i_image(s2i_python_version, "one", "rest")
         img = get_image_name("one", "rest")
-        run("docker run -d --rm --name 'model-one-rest' " + img, shell=True, check=True)
+        run(
+            f"docker run -d --rm --name 'model-one-rest' {img}",
+            shell=True,
+            check=True,
+        )
         time.sleep(2)
         run("docker rm -f model-one-rest", shell=True, check=True)
 
     def test_build_model_two_rest(self, s2i_python_version):
         create_s2i_image(s2i_python_version, "two", "rest")
         img = get_image_name("two", "rest")
-        run("docker run -d --rm --name 'model-two-rest' " + img, shell=True, check=True)
+        run(
+            f"docker run -d --rm --name 'model-two-rest' {img}",
+            shell=True,
+            check=True,
+        )
         time.sleep(2)
         run("docker rm -f model-two-rest", shell=True, check=True)
 
     def test_build_model_one_grpc(self, s2i_python_version):
         create_s2i_image(s2i_python_version, "one", "grpc")
         img = get_image_name("one", "grpc")
-        run("docker run -d --rm --name 'model-one-grpc' " + img, shell=True, check=True)
+        run(
+            f"docker run -d --rm --name 'model-one-grpc' {img}",
+            shell=True,
+            check=True,
+        )
         time.sleep(2)
         run("docker rm -f model-one-grpc", shell=True, check=True)
 
     def test_build_model_two_grpc(self, s2i_python_version):
         create_s2i_image(s2i_python_version, "two", "grpc")
         img = get_image_name("two", "grpc")
-        run("docker run -d --rm --name 'model-two-grpc' " + img, shell=True, check=True)
+        run(
+            f"docker run -d --rm --name 'model-two-grpc' {img}",
+            shell=True,
+            check=True,
+        )
         time.sleep(2)
         run("docker rm -f model-two-grpc", shell=True, check=True)
 
     def test_build_combiner_rest(self, s2i_python_version):
         create_s2i_image(s2i_python_version, "combiner", "rest")
         img = get_image_name("combiner", "rest")
-        run("docker run -d --rm --name 'combiner-rest' " + img, shell=True, check=True)
+        run(f"docker run -d --rm --name 'combiner-rest' {img}", shell=True, check=True)
         time.sleep(2)
         run("docker rm -f combiner-rest", shell=True, check=True)
 
     def test_build_combiner_grpc(self, s2i_python_version):
         create_s2i_image(s2i_python_version, "combiner", "grpc")
         img = get_image_name("combiner", "grpc")
-        run("docker run -d --rm --name 'combiner-grpc' " + img, shell=True, check=True)
+        run(f"docker run -d --rm --name 'combiner-grpc' {img}", shell=True, check=True)
         time.sleep(2)
         run("docker rm -f combiner-grpc", shell=True, check=True)
 

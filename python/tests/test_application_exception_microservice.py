@@ -24,14 +24,13 @@ class UserCustomException(Exception):
         self.application_error_code = application_error_code
 
     def to_dict(self):
-        rv = {
+        return {
             "status": {
                 "status": self.status_code,
                 "message": self.message,
                 "app_code": self.application_error_code,
             }
         }
-        return rv
 
 
 class UserObject(SeldonComponent):
@@ -52,7 +51,6 @@ class UserObject(SeldonComponent):
 
     def predict(self, X, features_names, **kwargs):
         raise UserCustomException("Test-Error-Msg", 1402, 402)
-        return X
 
 
 class UserObjectLowLevel(SeldonComponent):
@@ -72,7 +70,6 @@ class UserObjectLowLevel(SeldonComponent):
 
     def predict_rest(self, request):
         raise UserCustomException("Test-Error-Msg", 1402, 402)
-        return {"data": {"ndarray": [9, 9]}}
 
 
 def test_raise_exception():

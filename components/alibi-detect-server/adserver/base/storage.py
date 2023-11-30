@@ -24,7 +24,7 @@ def _rclone_enabled():
         return strtobool(enabled)
 
     # Otherwise we determine if Rclone config is provided
-    for key in os.environ.keys():
+    for key in os.environ:
         if "RCLONE_CONFIG" in key:
             return True
     else:

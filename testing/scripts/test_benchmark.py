@@ -89,9 +89,10 @@ def test_workers_performance():
     )
     df = df.sort_values(sort_by)
 
-    result_body = "# Benchmark results - Testing Workers Performance\n\n"
-
-    result_body += "\n### Results table\n\n"
+    result_body = (
+        "# Benchmark results - Testing Workers Performance\n\n"
+        + "\n### Results table\n\n"
+    )
     result_body += str(df.to_markdown())
     post_comment_in_pr(result_body)
 
@@ -103,9 +104,7 @@ def test_python_wrapper_v1_vs_v2_iris():
     sort_by = ["concurrency", "apiType"]
     benchmark_concurrency_list = ["1", "50", "150"]
 
-    result_body = ""
-    result_body += "\n# Benchmark Results - Python Wrapper V1 vs V2\n\n"
-
+    result_body = "" + "\n# Benchmark Results - Python Wrapper V1 vs V2\n\n"
     # Using single worker as fastapi also uses single worker
     df_pywrapper = run_benchmark_and_capture_results(
         api_type_list=["rest", "grpc"],
@@ -262,9 +261,10 @@ def test_v1_seldon_data_types():
     )
     df_tftensor = df_tftensor.sort_values(sort_by)
 
-    result_body = "# Benchmark results - Testing Seldon V1 Data Types\n\n"
-
-    result_body += "\n### Results for NDArray\n\n"
+    result_body = (
+        "# Benchmark results - Testing Seldon V1 Data Types\n\n"
+        + "\n### Results for NDArray\n\n"
+    )
     result_body += str(df_ndarray.to_markdown())
     result_body += "\n### Results for Tensor\n\n"
     result_body += str(df_tensor.to_markdown())

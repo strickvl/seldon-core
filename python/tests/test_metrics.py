@@ -121,10 +121,7 @@ class Component:
         self.ok = ok
 
     def metrics(self):
-        if self.ok:
-            return [RAW_COUNTER_METRIC]
-        else:
-            return [RAW_BAD_COUNTER_METRIC]
+        return [RAW_COUNTER_METRIC] if self.ok else [RAW_BAD_COUNTER_METRIC]
 
 
 def test_component_ok():
@@ -325,8 +322,7 @@ class UserObjectLowLevelGrpc:
         datadef = prediction_pb2.DefaultData(
             tensor=prediction_pb2.Tensor(shape=(2, 1), values=arr)
         )
-        request = prediction_pb2.SeldonMessage(data=datadef, meta=meta)
-        return request
+        return prediction_pb2.SeldonMessage(data=datadef, meta=meta)
 
     def aggregate_raw(self, msg):
         logging.info("Aggregate raw called")
@@ -338,8 +334,7 @@ class UserObjectLowLevelGrpc:
         datadef = prediction_pb2.DefaultData(
             tensor=prediction_pb2.Tensor(shape=(2, 1), values=arr)
         )
-        request = prediction_pb2.SeldonMessage(data=datadef, meta=meta)
-        return request
+        return prediction_pb2.SeldonMessage(data=datadef, meta=meta)
 
     def transform_input_raw(self, msg):
         logging.info("Transform input raw called")
@@ -351,8 +346,7 @@ class UserObjectLowLevelGrpc:
         datadef = prediction_pb2.DefaultData(
             tensor=prediction_pb2.Tensor(shape=(2, 1), values=arr)
         )
-        request = prediction_pb2.SeldonMessage(data=datadef, meta=meta)
-        return request
+        return prediction_pb2.SeldonMessage(data=datadef, meta=meta)
 
     def transform_output_raw(self, msg):
         logging.info("Transform output raw called")
@@ -364,8 +358,7 @@ class UserObjectLowLevelGrpc:
         datadef = prediction_pb2.DefaultData(
             tensor=prediction_pb2.Tensor(shape=(2, 1), values=arr)
         )
-        request = prediction_pb2.SeldonMessage(data=datadef, meta=meta)
-        return request
+        return prediction_pb2.SeldonMessage(data=datadef, meta=meta)
 
     def route_raw(self, msg):
         logging.info("Route raw called")
@@ -377,8 +370,7 @@ class UserObjectLowLevelGrpc:
         datadef = prediction_pb2.DefaultData(
             tensor=prediction_pb2.Tensor(shape=(1, 1), values=arr)
         )
-        request = prediction_pb2.SeldonMessage(data=datadef, meta=meta)
-        return request
+        return prediction_pb2.SeldonMessage(data=datadef, meta=meta)
 
 
 def verify_seldon_metrics(data, mycounter_value, histogram_entries, method):

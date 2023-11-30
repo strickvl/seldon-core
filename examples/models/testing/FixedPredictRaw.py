@@ -11,16 +11,14 @@ class FixedPredictRaw(FixedBase):
         
     def predict_raw(self, X):
         is_proto = isinstance(X, prediction_pb2.SeldonMessage)
-        if is_proto:
-            self.work()
-            Y = np.array(self.work())
-            datadef = prediction_pb2.DefaultData(
-                tftensor = tf.make_tensor_proto(Y)
-            )
-            request = prediction_pb2.SeldonMessage(data = datadef)
-            return request
-        else:
+        if not is_proto:
             return self.work()
+        self.work()
+        Y = np.array(self.work())
+        datadef = prediction_pb2.DefaultData(
+            tftensor = tf.make_tensor_proto(Y)
+        )
+        return prediction_pb2.SeldonMessage(data = datadef)
 
 
 

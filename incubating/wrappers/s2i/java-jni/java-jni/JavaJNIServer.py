@@ -44,6 +44,4 @@ class JavaJNIServer(SeldonComponent):
 
     def predict_rest(self, request: bytes) -> bytes:
         logger.debug("Sending request to Java model")
-        prediction_raw = self._model.predictRawREST(request)
-
-        return prediction_raw
+        return self._model.predictRawREST(request)

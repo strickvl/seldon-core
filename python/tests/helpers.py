@@ -25,9 +25,8 @@ class MicroserviceWrapper:
         env_vars = dict(os.environ)
         s2i_env_file = os.path.join(self.app_location, ".s2i", "environment")
         with open(s2i_env_file) as fh:
-            for line in fh.readlines():
-                line = line.strip()
-                if line:
+            for line in fh:
+                if line := line.strip():
                     key, value = line.split("=", 1)
                     key, value = key.strip(), value.strip()
                     if key and value:
