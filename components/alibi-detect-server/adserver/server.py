@@ -107,7 +107,7 @@ class CEServer(object):
 
         self._http_server = tornado.httpserver.HTTPServer(self.create_application())
 
-        logging.info("Listening on port %s" % self.http_port)
+        logging.info(f"Listening on port {self.http_port}")
         self._http_server.bind(self.http_port)
         self._http_server.start(1)  # Single worker at present
         tornado.ioloop.IOLoop.current().start()
@@ -116,7 +116,7 @@ class CEServer(object):
         if not model.name:
             raise Exception("Failed to register model, model.name must be provided.")
         self.registered_model = model
-        logging.info("Registering model:" + model.name)
+        logging.info(f"Registering model:{model.name}")
 
 
 def get_request_handler(protocol, request: Dict) -> RequestHandler:
@@ -218,7 +218,7 @@ class EventHandler(tornado.web.RequestHandler):
         except json.decoder.JSONDecodeError as e:
             raise tornado.web.HTTPError(
                 status_code=HTTPStatus.BAD_REQUEST,
-                reason="Unrecognized request format: %s" % e,
+                reason=f"Unrecognized request format: {e}",
             )
 
         # Extract payload from request
@@ -234,12 +234,7 @@ class EventHandler(tornado.web.RequestHandler):
         )
         logging.debug(json.dumps(event.Properties()))
 
-        # Extract any desired request headers
-        headers = {}
-
-        for (key, val) in self.request.headers.get_all():
-            headers[key] = val
-
+        headers = dict(self.request.headers.get_all())
         response: Optional[ModelResponse] = self.model.process_event(request, headers)
 
         if response is None:
@@ -250,12 +245,12 @@ class EventHandler(tornado.web.RequestHandler):
             if validate_metrics(runtime_metrics):
                 self.seldon_metrics.update(runtime_metrics, self.event_type)
             else:
-                logging.error("Metrics returned are invalid: " + str(runtime_metrics))
+                logging.error(f"Metrics returned are invalid: {str(runtime_metrics)}")
 
         if response.data is not None:
 
             # Create event from response if reply_url is active
-            if not self.reply_url == "":
+            if self.reply_url != "":
                 if event.EventID() is None or event.EventID() == "":
                     resp_event_id = uuid.uuid1().hex
                 else:

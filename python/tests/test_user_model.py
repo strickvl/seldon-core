@@ -34,8 +34,8 @@ def test_class_names_method(caplog):
     names = client_class_names(user_object, predictions)
     assert names == ["x", "y"]
     assert (
-        not "class_names attribute is deprecated. Please define a class_names method"
-        in caplog.text
+        "class_names attribute is deprecated. Please define a class_names method"
+        not in caplog.text
     )
 
 

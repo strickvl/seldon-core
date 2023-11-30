@@ -21,8 +21,7 @@ def getOpts(cmd_line_args):
     parser = argparse.ArgumentParser(description="Set seldon-core version")
     parser.add_argument("-d", "--debug", action="store_true", help="turn on debugging")
     parser.add_argument("seldon_core_version", help="the version to set")
-    opts = parser.parse_args(cmd_line_args)
-    return opts
+    return parser.parse_args(cmd_line_args)
 
 
 def dict_to_yaml(d):
@@ -36,8 +35,8 @@ def yaml_to_dict(yaml_data):
 def run_command(args, debug=False):
     err, out = None, None
     if debug:
-        print("cwd[{}]".format(os.getcwd()))
-        print("Executing: " + repr(args))
+        print(f"cwd[{os.getcwd()}]")
+        print(f"Executing: {repr(args)}")
     p = Popen(args, stdout=PIPE, stderr=PIPE)
     if p.wait() == 0:
         out = p.stdout.read()
@@ -56,11 +55,9 @@ def run_command(args, debug=False):
 def update_chart_yaml_file(fpath, seldon_core_version, debug=False):
     fpath = os.path.realpath(fpath)
     if debug:
-        print("processing [{}]".format(fpath))
-    f = open(fpath)
-    yaml_data = f.read()
-    f.close()
-
+        print(f"processing [{fpath}]")
+    with open(fpath) as f:
+        yaml_data = f.read()
     d = yaml_to_dict(yaml_data)
     d["version"] = seldon_core_version
     d["appVersion"] = seldon_core_version
@@ -76,7 +73,7 @@ def update_helm_values_yaml_file_default_images(
 ):
     fpath = os.path.realpath(fpath)
     if debug:
-        print("processing [{}]".format(fpath))
+        print(f"processing [{fpath}]")
     args = [
         "sed",
         "-i",
@@ -85,7 +82,7 @@ def update_helm_values_yaml_file_default_images(
     ]
     err, out = run_command(args, debug)
 
-    if err == None:
+    if err is None:
         print("updated helm values yaml for default images".format(**locals()))
     else:
         print("error updating helm values yaml for default images".format(**locals()))
@@ -97,7 +94,7 @@ def update_operator_values_yaml_file_core_images(
 ):
     fpath = os.path.realpath(fpath)
     if debug:
-        print("processing [{}]".format(fpath))
+        print(f"processing [{fpath}]")
     args = [
         "sed",
         "-i",
@@ -106,7 +103,7 @@ def update_operator_values_yaml_file_core_images(
     ]
     err, out = run_command(args, debug)
 
-    if err == None:
+    if err is None:
         print("updated operator values yaml for core images".format(**locals()))
     else:
         print("error updating operator values yaml for core images".format(**locals()))
@@ -118,7 +115,7 @@ def update_operator_values_yaml_file_storage_initializer(
 ):
     fpath = os.path.realpath(fpath)
     if debug:
-        print("processing [{}]".format(fpath))
+        print(f"processing [{fpath}]")
     args = [
         "sed",
         "-i",
@@ -129,7 +126,7 @@ def update_operator_values_yaml_file_storage_initializer(
     ]
     err, out = run_command(args, debug)
 
-    if err == None:
+    if err is None:
         print("updated operator values yaml for storage initializer".format(**locals()))
     else:
         print(
@@ -145,7 +142,7 @@ def update_operator_values_yaml_file_prepackaged_images(
 ):
     fpath = os.path.realpath(fpath)
     if debug:
-        print("processing [{}]".format(fpath))
+        print(f"processing [{fpath}]")
     args = [
         "sed",
         "-i",
@@ -156,7 +153,7 @@ def update_operator_values_yaml_file_prepackaged_images(
     ]
     err, out = run_command(args, debug)
 
-    if err == None:
+    if err is None:
         print(
             "updated operator values yaml for prepackaged server images".format(
                 **locals()
@@ -176,7 +173,7 @@ def update_operator_values_yaml_file_explainer_image(
 ):
     fpath = os.path.realpath(fpath)
     if debug:
-        print("processing [{}]".format(fpath))
+        print(f"processing [{fpath}]")
     args = [
         "sed",
         "-i",
@@ -187,7 +184,7 @@ def update_operator_values_yaml_file_explainer_image(
     ]
     err, out = run_command(args, debug)
 
-    if err == None:
+    if err is None:
         print(
             "updated operator values yaml for prepackaged server images".format(
                 **locals()
@@ -207,7 +204,7 @@ def update_operator_kustomize_prepackaged_images(
 ):
     fpath = os.path.realpath(fpath)
     if debug:
-        print("processing [{}]".format(fpath))
+        print(f"processing [{fpath}]")
     args = [
         "sed",
         "-i",
@@ -218,7 +215,7 @@ def update_operator_kustomize_prepackaged_images(
     ]
     err, out = run_command(args, debug)
 
-    if err == None:
+    if err is None:
         print(
             "updated operator kustomize yaml for prepackaged server images".format(
                 **locals()
@@ -238,7 +235,7 @@ def update_operator_kustomize_alibiexplainer_image(
 ):
     fpath = os.path.realpath(fpath)
     if debug:
-        print("processing [{}]".format(fpath))
+        print(f"processing [{fpath}]")
     args = [
         "sed",
         "-i",
@@ -249,7 +246,7 @@ def update_operator_kustomize_alibiexplainer_image(
     ]
     err, out = run_command(args, debug)
 
-    if err == None:
+    if err is None:
         print(
             "updated operator kustomize yaml for alibi explainer image".format(
                 **locals()
@@ -268,7 +265,7 @@ def update_alibi_detect_image(
 ):
     fpath = os.path.realpath(fpath)
     if debug:
-        print("processing [{}]".format(fpath))
+        print(f"processing [{fpath}]")
     args = [
         "sed",
         "-i",
@@ -289,7 +286,7 @@ def update_echo_model_image(
 ):
     fpath = os.path.realpath(fpath)
     if debug:
-        print("processing [{}]".format(fpath))
+        print(f"processing [{fpath}]")
     args = [
         "sed",
         "-i",
@@ -310,7 +307,7 @@ def update_models_version(
 ):
     fpath = os.path.realpath(fpath)
     if debug:
-        print("processing [{}]".format(fpath))
+        print(f"processing [{fpath}]")
     args = [
         "sed",
         "-i",
@@ -319,7 +316,7 @@ def update_models_version(
     ]
     err, out = run_command(args, debug)
 
-    if err == None:
+    if err is None:
         print(
             f"updated model uri gs://seldon-models/v:{seldon_core_version}{model_name} in {fpath}"
         )
@@ -369,7 +366,7 @@ def update_kustomize_executor_version(seldon_core_version, debug=False):
     ]
     err, out = run_command(args, debug)
 
-    if err == None:
+    if err is None:
         print("updated kustomize".format(**locals()))
     else:
         print("error updating kustomize".format(**locals()))
@@ -379,7 +376,7 @@ def update_kustomize_executor_version(seldon_core_version, debug=False):
 def update_operator_version(seldon_core_version, debug=False):
     fpath = "operator/config/manager/kustomization.yaml"
     if debug:
-        print("processing [{}]".format(fpath))
+        print(f"processing [{fpath}]")
     args = [
         "sed",
         "-i",
@@ -387,7 +384,7 @@ def update_operator_version(seldon_core_version, debug=False):
         fpath,
     ]
     err, out = run_command(args, debug)
-    if err == None:
+    if err is None:
         print("updated {fpath}".format(**locals()))
     else:
         print("error updating {fpath}".format(**locals()))
@@ -405,7 +402,7 @@ def update_image_metadata_json(seldon_core_version, debug=False):
     for path in paths:
         path = os.path.realpath(path)
         if debug:
-            print("processing [{}]".format(path))
+            print(f"processing [{path}]")
         with open(path) as json_file:
             data = json.load(json_file)
             for label in data["labels"]:
@@ -432,7 +429,7 @@ def update_dockerfile_label_version(seldon_core_version, debug=False):
     for path in paths:
         for replace in replaces:
             if debug:
-                print("processing [{}]".format(path))
+                print(f"processing [{path}]")
             args = [
                 "sed",
                 "-i",
@@ -440,7 +437,7 @@ def update_dockerfile_label_version(seldon_core_version, debug=False):
                 path,
             ]
             err, out = run_command(args, debug)
-            if err == None:
+            if err is None:
                 print("updated {path}".format(**locals()))
             else:
                 print("error updating {path}".format(**locals()))
@@ -455,7 +452,7 @@ def update_python_wrapper_fixed_versions(seldon_core_version, debug=False):
     ]
     err, out = run_command(args, debug)
 
-    if err == None:
+    if err is None:
         print("Updated python wrapper in matching files".format(**locals()))
     else:
         print("error updating python wrapper in matching files".format(**locals()))

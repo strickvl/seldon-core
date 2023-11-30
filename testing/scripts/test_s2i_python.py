@@ -30,7 +30,7 @@ def create_s2I_image(s2i_python_version, component_type, suffix):
 
 def kind_push_s2i_image(component_type, suffix):
     img = get_image_name(component_type, suffix)
-    cmd = "kind load docker-image " + img
+    cmd = f"kind load docker-image {img}"
     logging.warning(cmd)
     run(cmd, shell=True, check=True)
 
@@ -50,21 +50,21 @@ class TestPythonS2i(object):
     def test_build_router(self, s2i_python_version):
         create_s2I_image(s2i_python_version, "router", "")
         img = get_image_name("router", "")
-        run("docker run -d --rm --name 'router' " + img, shell=True, check=True)
+        run(f"docker run -d --rm --name 'router' {img}", shell=True, check=True)
         time.sleep(2)
         run("docker rm -f router", shell=True, check=True)
 
     def test_build_model(self, s2i_python_version):
         create_s2I_image(s2i_python_version, "model", "")
         img = get_image_name("model", "")
-        run("docker run -d --rm --name 'model' " + img, shell=True, check=True)
+        run(f"docker run -d --rm --name 'model' {img}", shell=True, check=True)
         time.sleep(2)
         run("docker rm -f model", shell=True, check=True)
 
     def test_build_transformer(self, s2i_python_version):
         create_s2I_image(s2i_python_version, "transformer", "")
         img = get_image_name("transformer", "")
-        run("docker run -d --rm --name 'transformer' " + img, shell=True, check=True)
+        run(f"docker run -d --rm --name 'transformer' {img}", shell=True, check=True)
         time.sleep(2)
         run("docker rm -f transformer", shell=True, check=True)
 
@@ -72,7 +72,7 @@ class TestPythonS2i(object):
         create_s2I_image(s2i_python_version, "combiner", "")
         img = get_image_name("combiner", "")
         logging.warning(img)
-        run("docker run -d --rm --name 'combiner' " + img, shell=True, check=True)
+        run(f"docker run -d --rm --name 'combiner' {img}", shell=True, check=True)
         time.sleep(2)
         run("docker rm -f combiner", shell=True, check=True)
 

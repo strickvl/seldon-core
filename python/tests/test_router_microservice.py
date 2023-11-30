@@ -32,10 +32,7 @@ class UserObject:
         logging.info("Feedback called")
 
     def tags(self):
-        if self.ret_meta:
-            return {"inc_meta": self.inc_meta}
-        else:
-            return {"mytag": 1}
+        return {"inc_meta": self.inc_meta} if self.ret_meta else {"mytag": 1}
 
     def metrics(self):
         if self.metrics_ok:
@@ -103,10 +100,7 @@ class UserObjectLowLevelRaw:
             tensor=prediction_pb2.Tensor(shape=(1, 1), values=arr)
         )
         response = prediction_pb2.SeldonMessage(data=datadef)
-        if is_proto:
-            return response
-        else:
-            return seldon_message_to_json(response)
+        return response if is_proto else seldon_message_to_json(response)
 
     def send_feedback_raw(self, request):
         logging.info("Feedback called")
@@ -306,9 +300,8 @@ def test_proto_feedback():
         tensor=prediction_pb2.Tensor(shape=(2, 1), values=arr)
     )
     meta = prediction_pb2.Meta()
-    metaJson = {}
     routing = {"1": 1}
-    metaJson["routing"] = routing
+    metaJson = {"routing": routing}
     json_format.ParseDict(metaJson, meta)
 
     request = prediction_pb2.SeldonMessage(data=datadef)

@@ -66,22 +66,21 @@ soft, hard = resource.getrlimit(rsrc)
 soft, hard = resource.getrlimit(rsrc)
 
 def getEnviron(key,default):
-    if key in os.environ:
-        return os.environ[key]
-    else:
-        return default
+    return os.environ.get(key, default)
 
 
 class SeldonJsLocust(TaskSet):
 
 
     def get_token(self):
-        print("Getting access token with key "+self.oauth_key+" and secret "+self.oauth_secret)
+        print(
+            f"Getting access token with key {self.oauth_key} and secret {self.oauth_secret}"
+        )
         r = self.client.request("POST","/oauth/token",headers={"Accept":"application/json"},data={"grant_type":"client_credentials"},auth=(self.oauth_key,self.oauth_secret))
         if r.status_code == 200:
             j = json.loads(r.content)
             self.access_token =  j["access_token"]
-            print("got access token "+self.access_token)
+            print(f"got access token {self.access_token}")
         else:
             print("failed to get access token")
             print(r.status_code)
@@ -110,9 +109,19 @@ class SeldonJsLocust(TaskSet):
     def sendFeedback(self,request,response,reward):
         j = {"request":request,"response":response,"reward":reward}
         jStr = json.dumps(j)
-        r = self.client.request("POST","/api/v0.1/feedback",headers={"Content-Type":"application/json","Accept":"application/json","Authorization":"Bearer "+self.access_token},name="feedback",data=jStr)
-        if not r.status_code == 200:
-            print("Failed feedback request "+str(r.status_code))
+        r = self.client.request(
+            "POST",
+            "/api/v0.1/feedback",
+            headers={
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Authorization": f"Bearer {self.access_token}",
+            },
+            name="feedback",
+            data=jStr,
+        )
+        if r.status_code != 200:
+            print(f"Failed feedback request {str(r.status_code)}")
             if r.status_code == 401:
                 if self.oauth_enabled == "true":
                     self.get_token()
@@ -125,7 +134,7 @@ class SeldonJsLocust(TaskSet):
         batch_xs, batch_ys = self.mnist.train.next_batch(1)
         data = batch_xs[0].reshape((1,784))
         data = np.around(data,decimals=2)
-        features = ["X"+str(i+1) for i in range (0,self.data_size)]
+        features = [f"X{str(i + 1)}" for i in range (0,self.data_size)]
         #request = {"data":{"names":features,"ndarray":data.tolist()}}
         datadef = prediction_pb2.DefaultData(
             names = features,

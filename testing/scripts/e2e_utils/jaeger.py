@@ -52,7 +52,4 @@ def get_traces(pod_name, service, operation, _should_retry=lambda x: False):
     payload = response.json()
     traces = payload["data"]
 
-    if _should_retry(traces):
-        return None
-
-    return traces
+    return None if _should_retry(traces) else traces

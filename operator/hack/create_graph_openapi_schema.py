@@ -14,8 +14,7 @@ def getOpts(cmd_line_args):
     parser.add_argument(
         "--levels", help="the number of levels to create", type=int, default=10
     )
-    opts = parser.parse_args(cmd_line_args)
-    return opts
+    return parser.parse_args(cmd_line_args)
 
 
 def expand_tmpl(filename, levels):

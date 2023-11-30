@@ -11,28 +11,26 @@ from adserver.protocols.request_handler import (
 def _create_np_from_v2(data: list, ty: str, shape: list) -> np.ndarray:
     if ty == "BOOL":
         npty: Any = bool
-    elif ty == "UINT8":
-        npty = np.uint8
-    elif ty == "UINT16":
-        npty = np.uint16
-    elif ty == "UINT32":
-        npty = np.uint32
-    elif ty == "UINT64":
-        npty = np.uint64
-    elif ty == "INT8":
-        npty = np.int8
+    elif ty in {"FP16", "FP32"}:
+        npty = np.float32
+    elif ty == "FP64":
+        npty = np.float64
     elif ty == "INT16":
         npty = np.int16
     elif ty == "INT32":
         npty = np.int32
     elif ty == "INT64":
         npty = np.int64
-    elif ty == "FP16":
-        npty = np.float32
-    elif ty == "FP32":
-        npty = np.float32
-    elif ty == "FP64":
-        npty = np.float64
+    elif ty == "INT8":
+        npty = np.int8
+    elif ty == "UINT16":
+        npty = np.uint16
+    elif ty == "UINT32":
+        npty = np.uint32
+    elif ty == "UINT64":
+        npty = np.uint64
+    elif ty == "UINT8":
+        npty = np.uint8
     else:
         raise ValueError(f"V2 unknown type or type that can't be coerced {ty}")
 
@@ -46,7 +44,7 @@ class KFservingV2RequestHandler(RequestHandler):
         super().__init__(request)
 
     def validate(self):
-        if not "inputs" in self.request:
+        if "inputs" not in self.request:
             raise tornado.web.HTTPError(
                 status_code=HTTPStatus.BAD_REQUEST,
                 reason='Expected key "data" in request body',

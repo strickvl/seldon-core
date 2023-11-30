@@ -64,5 +64,4 @@ class AnchorText(ExplainerWrapper):
     def explain(self, inputs: List) -> Explanation:
         if hasattr(self, "seed"):
             np.random.seed(self.seed)
-        anchor_exp = self.anchors_text.explain(inputs[0], **self.kwargs)
-        return anchor_exp
+        return self.anchors_text.explain(inputs[0], **self.kwargs)

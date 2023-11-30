@@ -70,7 +70,7 @@ def read_mlmodel(model_folder):
     obj
         Dictionary with MLmodel contents.
     """
-    log.info(f"Reading MLmodel file")
+    log.info("Reading MLmodel file")
     mlmodel_path = os.path.join(model_folder, "MLmodel")
     return _read_yaml(mlmodel_path)
 
@@ -132,7 +132,7 @@ def install_base_reqs():
     env_name = os.getenv("CONDA_ENV_NAME", DEFAULT_CONDA_ENV_NAME)
     env_name = quote(env_name)
 
-    log.info(f"Install additional package from requirements.txt")
+    log.info("Install additional package from requirements.txt")
 
     cmd = f"conda run -n {env_name} pip install -r {BASE_REQS_PATH}"
     run(cmd, shell=True, check=True)

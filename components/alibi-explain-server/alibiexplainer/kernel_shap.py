@@ -22,5 +22,4 @@ class KernelShap(ExplainerWrapper):
         arr = np.array(inputs)
         logging.info("kernel Shap call with %s", self.kwargs)
         logging.info("kernel shap data shape %s", arr.shape)
-        shap_exp = self.kernel_shap.explain(arr, l1_reg=False, **self.kwargs)
-        return shap_exp
+        return self.kernel_shap.explain(arr, l1_reg=False, **self.kwargs)

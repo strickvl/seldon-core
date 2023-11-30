@@ -78,22 +78,21 @@ class AlibiExplainer(ExplainerModel):
 
     def explain(self, request: Dict) -> Any:
         if (
-            self.method is ExplainerMethod.anchor_tabular
-            or self.method is ExplainerMethod.anchor_images
-            or self.method is ExplainerMethod.anchor_text
-            or self.method is ExplainerMethod.kernel_shap
-            or self.method is ExplainerMethod.integrated_gradients
-            or self.method is ExplainerMethod.tree_shap
-            or self.method is ExplainerMethod.ale
+            self.method is not ExplainerMethod.anchor_tabular
+            and self.method is not ExplainerMethod.anchor_images
+            and self.method is not ExplainerMethod.anchor_text
+            and self.method is not ExplainerMethod.kernel_shap
+            and self.method is not ExplainerMethod.integrated_gradients
+            and self.method is not ExplainerMethod.tree_shap
+            and self.method is not ExplainerMethod.ale
         ):
-            if self.protocol == Protocol.tensorflow_http:
-                explanation: Explanation = self.wrapper.explain(request["instances"])
-            else:
-                rh = seldon.SeldonRequestHandler(request)
-                response_list = rh.extract_request()
-                explanation = self.wrapper.explain(response_list)
-            explanation_as_json_str = explanation.to_json()
-            logging.info("Explanation: %s", explanation_as_json_str)
-            return json.loads(explanation_as_json_str)
-        else:
             raise NotImplementedError
+        if self.protocol == Protocol.tensorflow_http:
+            explanation: Explanation = self.wrapper.explain(request["instances"])
+        else:
+            rh = seldon.SeldonRequestHandler(request)
+            response_list = rh.extract_request()
+            explanation = self.wrapper.explain(response_list)
+        explanation_as_json_str = explanation.to_json()
+        logging.info("Explanation: %s", explanation_as_json_str)
+        return json.loads(explanation_as_json_str)

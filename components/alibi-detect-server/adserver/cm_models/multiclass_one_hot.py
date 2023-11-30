@@ -38,38 +38,37 @@ class MulticlassOneHot:
         correct = response_class == truth_class
 
         if correct:
-            metrics.append(
-                {
-                    "key": "seldon_metric_true_positive",
-                    "type": "COUNTER",
-                    "value": 1,
-                    "tags": {"class": f"CLASS_{truth_class}"},
-                }
-            )
-            metrics.append(
-                {
-                    "key": "seldon_metric_true_negative",
-                    "type": "COUNTER",
-                    "value": 1,
-                    "tags": {"class": f"CLASS_{response_class}"},
-                }
+            metrics.extend(
+                (
+                    {
+                        "key": "seldon_metric_true_positive",
+                        "type": "COUNTER",
+                        "value": 1,
+                        "tags": {"class": f"CLASS_{truth_class}"},
+                    },
+                    {
+                        "key": "seldon_metric_true_negative",
+                        "type": "COUNTER",
+                        "value": 1,
+                        "tags": {"class": f"CLASS_{response_class}"},
+                    },
+                )
             )
         else:
-            metrics.append(
-                {
-                    "key": "seldon_metric_false_negative",
-                    "type": "COUNTER",
-                    "value": 1,
-                    "tags": {"class": f"CLASS_{truth_class}"},
-                }
+            metrics.extend(
+                (
+                    {
+                        "key": "seldon_metric_false_negative",
+                        "type": "COUNTER",
+                        "value": 1,
+                        "tags": {"class": f"CLASS_{truth_class}"},
+                    },
+                    {
+                        "key": "seldon_metric_false_positive",
+                        "type": "COUNTER",
+                        "value": 1,
+                        "tags": {"class": f"CLASS_{response_class}"},
+                    },
+                )
             )
-            metrics.append(
-                {
-                    "key": "seldon_metric_false_positive",
-                    "type": "COUNTER",
-                    "value": 1,
-                    "tags": {"class": f"CLASS_{response_class}"},
-                }
-            )
-
         return SeldonResponse(None, None, metrics)

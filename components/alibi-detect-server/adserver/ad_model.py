@@ -63,17 +63,12 @@ class AlibiDetectAdversarialDetectionModel(
         try:
             X = read_inputs_as_numpy(inputs)
         except Exception as e:
-            raise Exception(
-                "Failed to initialize NumPy array from inputs: %s, %s" % (e, inputs)
-            )
+            raise Exception(f"Failed to initialize NumPy array from inputs: {e}, {inputs}")
 
-        ret_instance_score = True
-        if (
-            HEADER_RETURN_INSTANCE_SCORE in headers
-            and headers[HEADER_RETURN_INSTANCE_SCORE] == "false"
-        ):
-            ret_instance_score = False
-
+        ret_instance_score = (
+            HEADER_RETURN_INSTANCE_SCORE not in headers
+            or headers[HEADER_RETURN_INSTANCE_SCORE] != "false"
+        )
         ad_preds = self.model.predict(X, return_instance_score=ret_instance_score)
 
         data = json.loads(json.dumps(ad_preds, cls=NumpyEncoder))

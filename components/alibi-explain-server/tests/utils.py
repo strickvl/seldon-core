@@ -35,19 +35,15 @@ class SKLearnServer:
 
     def predict(self, X: np.ndarray) -> Union[np.ndarray, List, str, bytes]:
         if not isinstance(X, np.ndarray):
-            if isinstance(X, list):
-                X = np.array(X)
-            else:
-                X = np.array([X])
+            X = np.array(X) if isinstance(X, list) else np.array([X])
         try:
             if not self.ready:
                 self.load()
             if self.method == "predict_proba":
                 logger.info("Calling predict_proba")
-                result = self._joblib.predict_proba(X)
+                return self._joblib.predict_proba(X)
             else:
                 logger.info("Calling predict")
-                result = self._joblib.predict(X)
-            return result
+                return self._joblib.predict(X)
         except Exception as ex:
             logging.exception("Exception during predict")

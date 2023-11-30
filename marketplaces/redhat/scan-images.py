@@ -4,8 +4,8 @@ import os
 def run_command(args, debug=False):
     err, out = None, None
     if debug:
-        print("cwd[{}]".format(os.getcwd()))
-        print("Executing: " + repr(args))
+        print(f"cwd[{os.getcwd()}]")
+        print(f"Executing: {repr(args)}")
     p = Popen(args, stdout=PIPE, stderr=PIPE)
     if p.wait() == 0:
         out = p.stdout.read()
@@ -37,14 +37,9 @@ def scan_images(debug=False):
     ]
 
     for path in paths:
-        args = [
-            "make",
-            "-C",
-            "../../"+path,
-            "redhat-image-scan"
-        ]
+        args = ["make", "-C", f"../../{path}", "redhat-image-scan"]
         err, out = run_command(args, debug)
-        if err == None:
+        if err is None:
             print("updated {path}".format(**locals()))
         else:
             try:

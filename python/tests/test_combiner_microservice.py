@@ -22,10 +22,9 @@ class UserObject:
     def aggregate(self, Xs, features_names):
         if self.ret_nparray:
             return self.nparray
-        else:
-            logging.info("Aggregate input called - will return first item")
-            logging.info(Xs)
-            return Xs[0]
+        logging.info("Aggregate input called - will return first item")
+        logging.info(Xs)
+        return Xs[0]
 
     def tags(self):
         return {"mytag": 1}
@@ -57,10 +56,7 @@ class UserObjectLowLevel:
             tensor=prediction_pb2.Tensor(shape=(2, 1), values=arr)
         )
         response = prediction_pb2.SeldonMessage(data=datadef)
-        if is_proto:
-            return response
-        else:
-            return seldon_message_to_json(response)
+        return response if is_proto else seldon_message_to_json(response)
 
 
 class UserObjectLowLevelGrpc:
@@ -74,8 +70,7 @@ class UserObjectLowLevelGrpc:
         datadef = prediction_pb2.DefaultData(
             tensor=prediction_pb2.Tensor(shape=(2, 1), values=arr)
         )
-        request = prediction_pb2.SeldonMessage(data=datadef)
-        return request
+        return prediction_pb2.SeldonMessage(data=datadef)
 
 
 class UserObjectBad:

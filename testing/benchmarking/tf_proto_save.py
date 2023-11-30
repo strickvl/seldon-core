@@ -22,9 +22,8 @@ def serialize(model, signature_name, input_path, output_path):
     request.inputs["image_bytes"].CopyFrom(make_tensor_proto(image, shape=[1]))
     request.inputs["key"].CopyFrom(make_tensor_proto(key, shape=[1]))
 
-    bin_file = open(output_path, "wb")
-    bin_file.write(request.SerializeToString())
-    bin_file.close()
+    with open(output_path, "wb") as bin_file:
+        bin_file.write(request.SerializeToString())
 
 
 if __name__ == "__main__":

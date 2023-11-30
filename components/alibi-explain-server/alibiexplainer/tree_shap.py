@@ -22,5 +22,4 @@ class TreeShap(ExplainerWrapper):
         arr = np.array(inputs)
         logging.info("Tree Shap call with %s", self.kwargs)
         logging.info("kernel shap data shape %s", arr.shape)
-        shap_exp = self.tree_shap.explain(arr, **self.kwargs)
-        return shap_exp
+        return self.tree_shap.explain(arr, **self.kwargs)

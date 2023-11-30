@@ -25,9 +25,7 @@ class IntegratedGradients(ExplainerWrapper):
         if keras_model is None:
             raise Exception("Integrated Gradients requires a Keras model")
         self.keras_model: keras.Model = keras_model
-        keras_layer = None
-        if layer is not None:
-            keras_layer = keras_model.layers[layer]
+        keras_layer = keras_model.layers[layer] if layer is not None else None
         self.integrated_gradients: IG = IG(
             keras_model,
             layer=keras_layer,
@@ -42,7 +40,6 @@ class IntegratedGradients(ExplainerWrapper):
         logging.info("Integrated gradients call")
         predictions = self.keras_model(arr).numpy().argmax(axis=1)
         logging.info("predictions shape %s", predictions.shape)
-        explanation = self.integrated_gradients.explain(
+        return self.integrated_gradients.explain(
             arr, baselines=None, target=predictions
         )
-        return explanation

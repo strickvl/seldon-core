@@ -30,6 +30,4 @@ class TorchServer(SeldonComponent):
         if not self.ready:
             self.load()
 
-        result = self._model(X)
-
-        return result
+        return self._model(X)

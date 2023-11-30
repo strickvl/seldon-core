@@ -65,7 +65,7 @@ def json_to_seldon_message(
         json_format.ParseDict(message_json, message_proto)
         return message_proto
     except json_format.ParseError as pbExc:
-        raise SeldonMicroserviceException("Invalid JSON: " + str(pbExc))
+        raise SeldonMicroserviceException(f"Invalid JSON: {str(pbExc)}")
 
 
 def json_to_seldon_model_metadata(
@@ -110,7 +110,7 @@ def json_to_feedback(message_json: Dict) -> prediction_pb2.Feedback:
         json_format.ParseDict(message_json, message_proto)
         return message_proto
     except json_format.ParseError as pbExc:
-        raise SeldonMicroserviceException("Invalid JSON: " + str(pbExc))
+        raise SeldonMicroserviceException(f"Invalid JSON: {str(pbExc)}")
 
 
 def json_to_seldon_messages(message_json: Dict) -> prediction_pb2.SeldonMessageList:
@@ -119,7 +119,7 @@ def json_to_seldon_messages(message_json: Dict) -> prediction_pb2.SeldonMessageL
         json_format.ParseDict(message_json, message_proto)
         return message_proto
     except json_format.ParseError as pbExc:
-        raise SeldonMicroserviceException("Invalid JSON: " + str(pbExc))
+        raise SeldonMicroserviceException(f"Invalid JSON: {str(pbExc)}")
 
 
 def seldon_message_to_json(message_proto: prediction_pb2.SeldonMessage) -> Dict:
@@ -135,8 +135,7 @@ def seldon_message_to_json(message_proto: prediction_pb2.SeldonMessage) -> Dict:
        JSON Dict
     """
     message_json = json_format.MessageToJson(message_proto)
-    message_dict = json.loads(message_json)
-    return message_dict
+    return json.loads(message_json)
 
 
 def seldon_messages_to_json(message_protos: prediction_pb2.SeldonMessageList) -> Dict:
@@ -152,8 +151,7 @@ def seldon_messages_to_json(message_protos: prediction_pb2.SeldonMessageList) ->
        JSON Dict
     """
     message_json = json_format.MessageToJson(message_protos)
-    message_dict = json.loads(message_json)
-    return message_dict
+    return json.loads(message_json)
 
 
 def feedback_to_json(message_proto: prediction_pb2.Feedback) -> Dict:
@@ -170,8 +168,7 @@ def feedback_to_json(message_proto: prediction_pb2.Feedback) -> Dict:
        JSON Dict
     """
     message_json = json_format.MessageToJson(message_proto)
-    message_dict = json.loads(message_json)
-    return message_dict
+    return json.loads(message_json)
 
 
 def get_data_from_proto(
@@ -281,8 +278,6 @@ def array_to_rest_datadef(
     datadef: Dict = {"names": names}
     if data_type == "tensor":
         datadef["tensor"] = {"shape": array.shape, "values": array.ravel().tolist()}
-    elif data_type == "ndarray":
-        datadef["ndarray"] = array.tolist()
     elif data_type == "tftensor":
         tftensor = tf.make_tensor_proto(array)
         jStrTensor = json_format.MessageToJson(tftensor)
@@ -314,26 +309,20 @@ def array_to_grpc_datadef(
 
     """
     if data_type == "tensor":
-        datadef = prediction_pb2.DefaultData(
+        return prediction_pb2.DefaultData(
             names=names,
             tensor=prediction_pb2.Tensor(
                 shape=array.shape, values=array.ravel().tolist()
             ),
         )
-    elif data_type == "ndarray":
-        datadef = prediction_pb2.DefaultData(
-            names=names, ndarray=array_to_list_value(array)
-        )
     elif data_type == "tftensor":
-        datadef = prediction_pb2.DefaultData(
+        return prediction_pb2.DefaultData(
             names=names, tftensor=tf.make_tensor_proto(array)
         )
     else:
-        datadef = prediction_pb2.DefaultData(
+        return prediction_pb2.DefaultData(
             names=names, ndarray=array_to_list_value(array)
         )
-
-    return datadef
 
 
 def array_to_list_value(array: np.ndarray, lv: Optional[ListValue] = None) -> ListValue:
@@ -405,10 +394,9 @@ def construct_response_json(
     else:
         is_np = isinstance(client_raw_response, np.ndarray)
         is_list = isinstance(client_raw_response, list)
-        if not (is_np or is_list):
+        if not is_np and not is_list:
             raise SeldonMicroserviceException(
-                "Unknown data type returned as payload (must be list or np array):"
-                + str(client_raw_response)
+                f"Unknown data type returned as payload (must be list or np array):{str(client_raw_response)}"
             )
         if is_np:
             np_client_raw_response = client_raw_response
@@ -438,16 +426,15 @@ def construct_response_json(
             else:
                 default_data_type = "ndarray"
                 result_client_response = list_client_raw_response
+        elif np.issubdtype(np_client_raw_response.dtype, np.number):
+            default_data_type = "tensor"
+            result_client_response = {
+                "values": np_client_raw_response.ravel().tolist(),
+                "shape": np_client_raw_response.shape,
+            }
         else:
-            if np.issubdtype(np_client_raw_response.dtype, np.number):
-                default_data_type = "tensor"
-                result_client_response = {
-                    "values": np_client_raw_response.ravel().tolist(),
-                    "shape": np_client_raw_response.shape,
-                }
-            else:
-                default_data_type = "ndarray"
-                result_client_response = list_client_raw_response
+            default_data_type = "ndarray"
+            result_client_response = list_client_raw_response
 
         response["data"][default_data_type] = result_client_response
 
@@ -467,8 +454,7 @@ def construct_response_json(
         tags = {}
         metrics = []
         request_path = {}
-    custom_tags = client_custom_tags(user_model)
-    if custom_tags:
+    if custom_tags := client_custom_tags(user_model):
         tags.update(custom_tags)
     if runtime_tags:
         tags.update(runtime_tags)
@@ -478,12 +464,10 @@ def construct_response_json(
         response["meta"]["tags"] = tags
     if metrics:
         response["meta"]["metrics"] = metrics
-    puid = client_request_raw.get("meta", {}).get("puid", None)
-    if puid:
+    if puid := client_request_raw.get("meta", {}).get("puid", None):
         response["meta"]["puid"] = puid
 
-    request_path = {**get_request_path(), **request_path}
-    if request_path:
+    if request_path := {**get_request_path(), **request_path}:
         response["meta"]["requestPath"] = request_path
 
     return response
@@ -528,11 +512,9 @@ def construct_response(
         tags = {}
         metrics = []
         request_path = {}
-    request_path = {**get_request_path(), **request_path}
-    if request_path:
+    if request_path := {**get_request_path(), **request_path}:
         meta_json["requestPath"] = request_path
-    custom_tags = client_custom_tags(user_model)
-    if custom_tags:
+    if custom_tags := client_custom_tags(user_model):
         tags.update(custom_tags)
     if runtime_tags:
         tags.update(runtime_tags)
@@ -547,9 +529,7 @@ def construct_response(
             meta_json["puid"] = client_request.meta.puid
 
     json_format.ParseDict(meta_json, meta_pb)
-    if isinstance(client_raw_response, np.ndarray) or isinstance(
-        client_raw_response, list
-    ):
+    if isinstance(client_raw_response, (np.ndarray, list)):
         client_raw_response = np.array(client_raw_response)
         if is_request:
             names = client_feature_names(user_model, client_request.data.names)
@@ -558,15 +538,15 @@ def construct_response(
         if (
             data_type == "data"
         ):  # If request is using defaultdata then return what was sent if is numeric response else ndarray
-            if np.issubdtype(client_raw_response.dtype, np.number):
-                default_data_type = client_request.data.WhichOneof("data_oneof")
-            else:
-                default_data_type = "ndarray"
-        else:  # If numeric response return as tensor else return as ndarray
-            if np.issubdtype(client_raw_response.dtype, np.number):
-                default_data_type = "tensor"
-            else:
-                default_data_type = "ndarray"
+            default_data_type = (
+                client_request.data.WhichOneof("data_oneof")
+                if np.issubdtype(client_raw_response.dtype, np.number)
+                else "ndarray"
+            )
+        elif np.issubdtype(client_raw_response.dtype, np.number):
+            default_data_type = "tensor"
+        else:
+            default_data_type = "ndarray"
         data = array_to_grpc_datadef(default_data_type, client_raw_response, names)
         return prediction_pb2.SeldonMessage(data=data, meta=meta_pb)
     elif isinstance(client_raw_response, str):
@@ -584,7 +564,7 @@ def construct_response(
         )
     else:
         raise SeldonMicroserviceException(
-            "Unknown data type returned as payload:" + client_raw_response
+            f"Unknown data type returned as payload:{client_raw_response}"
         )
 
 
@@ -717,10 +697,7 @@ def getenv_as_bool(*env_vars, default=False):
 
     val = getenv(*env_vars)
 
-    if val is None:
-        return default
-
-    return val.lower() in ["1", "true", "t"]
+    return default if val is None else val.lower() in ["1", "true", "t"]
 
 
 def setup_tracing(interface_name: str) -> object:

@@ -290,10 +290,13 @@ def get_grpc_server(
     if ANNOTATION_GRPC_MAX_MSG_SIZE in annotations:
         max_msg = int(annotations[ANNOTATION_GRPC_MAX_MSG_SIZE])
         logger.info("Setting grpc max message and receive length to %d", max_msg)
-        options.append(("grpc.max_message_length", max_msg))
-        options.append(("grpc.max_send_message_length", max_msg))
-        options.append(("grpc.max_receive_message_length", max_msg))
-
+        options.extend(
+            (
+                ("grpc.max_message_length", max_msg),
+                ("grpc.max_send_message_length", max_msg),
+                ("grpc.max_receive_message_length", max_msg),
+            )
+        )
     server = grpc.server(
         futures.ThreadPoolExecutor(max_workers=num_threads), options=options
     )

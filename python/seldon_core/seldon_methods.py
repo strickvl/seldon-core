@@ -250,8 +250,6 @@ def transform_input(
        The transformed request
 
     """
-    is_proto = isinstance(request, prediction_pb2.SeldonMessage)
-
     if hasattr(user_model, "transform_input_rest"):
         logger.warning(
             "transform_input_rest is deprecated. Please use transform_input_raw"
@@ -263,6 +261,8 @@ def transform_input(
         )
         return user_model.transform_input_grpc(request)
     else:
+        is_proto = isinstance(request, prediction_pb2.SeldonMessage)
+
         if hasattr(user_model, "transform_input_raw"):
             try:
                 response = user_model.transform_input_raw(request)
@@ -344,8 +344,6 @@ def transform_output(
        The transformed request
 
     """
-    is_proto = isinstance(request, prediction_pb2.SeldonMessage)
-
     if hasattr(user_model, "transform_output_rest"):
         logger.warning(
             "transform_input_rest is deprecated. Please use transform_input_raw"
@@ -357,6 +355,8 @@ def transform_output(
         )
         return user_model.transform_output_grpc(request)
     else:
+        is_proto = isinstance(request, prediction_pb2.SeldonMessage)
+
         if hasattr(user_model, "transform_output_raw"):
             try:
                 response = user_model.transform_output_raw(request)
@@ -436,8 +436,6 @@ def route(
     Returns
     -------
     """
-    is_proto = isinstance(request, prediction_pb2.SeldonMessage)
-
     if hasattr(user_model, "route_rest"):
         logger.warning("route_rest is deprecated. Please use route_raw")
         return user_model.route_rest(request)
@@ -445,6 +443,8 @@ def route(
         logger.warning("route_grpc is deprecated. Please use route_raw")
         return user_model.route_grpc(request)
     else:
+        is_proto = isinstance(request, prediction_pb2.SeldonMessage)
+
         if hasattr(user_model, "route_raw"):
             try:
                 response = user_model.route_raw(request)
@@ -462,7 +462,7 @@ def route(
             )
             if not isinstance(client_response.data, int):
                 raise SeldonMicroserviceException(
-                    "Routing response must be int but got " + str(client_response.data)
+                    f"Routing response must be int but got {str(client_response.data)}"
                 )
             client_response_arr = np.array([[client_response.data]])
 
@@ -488,7 +488,7 @@ def route(
             client_response = client_route(user_model, features, class_names, meta=meta)
             if not isinstance(client_response.data, int):
                 raise SeldonMicroserviceException(
-                    "Routing response must be int but got " + str(client_response.data)
+                    f"Routing response must be int but got {str(client_response.data)}"
                 )
             client_response_arr = np.array([[client_response.data]])
 
@@ -694,7 +694,6 @@ def init_metadata(user_model: Any) -> Dict:
             meta_user = user_model.init_metadata()
         except SeldonNotImplementedError:
             meta_user = {}
-            pass
     else:
         meta_user = {}
 
@@ -709,7 +708,7 @@ def init_metadata(user_model: Any) -> Dict:
         logger.error(f"Reading metadata from MODEL_METADATA env variable failed: {e}")
         meta_env = {}
 
-    meta = {**meta_user, **meta_env}
+    meta = meta_user | meta_env
 
     try:
         return validate_model_metadata(meta)

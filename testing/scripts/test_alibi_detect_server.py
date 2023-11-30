@@ -51,14 +51,13 @@ class TestADServer:
 
         retry_run(f"kubectl apply -f {spec} -n {namespace}")
 
-        wait_for_deployment(name, namespace)
-
+        wait_for_deployment(vs_prefix, namespace)
         time.sleep(AFTER_WAIT_SLEEP)
 
         with open(self.truck_json) as f:
             data = json.load(f)
 
-        print(f"==== AT START ======")
+        print("==== AT START ======")
         print_logs(app="cifar10-od-server", namespace=namespace)
         idx = 0
         for attempt in Retrying(
@@ -113,8 +112,7 @@ class TestADServer:
 
         retry_run(f"kubectl apply -f {spec} -n {namespace}")
 
-        wait_for_deployment(name, namespace)
-
+        wait_for_deployment(vs_prefix, namespace)
         time.sleep(AFTER_WAIT_SLEEP)
 
         with open(self.truck_json) as f:

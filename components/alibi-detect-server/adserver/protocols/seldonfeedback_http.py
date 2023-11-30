@@ -48,7 +48,7 @@ def _get_request_ty(
     elif "tftensor" in data_def:
         return SeldonPayload.TFTENSOR
     else:
-        raise Exception("Unknown Seldon payload %s" % data_def)
+        raise Exception(f"Unknown Seldon payload {data_def}")
 
 
 class SeldonFeedbackRequestHandler(RequestHandler):
@@ -56,24 +56,24 @@ class SeldonFeedbackRequestHandler(RequestHandler):
         super().__init__(request)
 
     def _validate_seldon_message(self, message):
-        if not "data" in message:
+        if "data" not in message:
             raise tornado.web.HTTPError(
                 status_code=HTTPStatus.BAD_REQUEST,
                 reason='Expected key "data" in feedback request body',
             )
         ty = _get_request_ty(message)
-        if not (
-            ty == SeldonPayload.TENSOR
-            or ty == SeldonPayload.NDARRAY
-            or ty == SeldonPayload.TFTENSOR
-        ):
+        if ty not in [
+            SeldonPayload.TENSOR,
+            SeldonPayload.NDARRAY,
+            SeldonPayload.TFTENSOR,
+        ]:
             raise tornado.web.HTTPError(
                 status_code=HTTPStatus.BAD_REQUEST,
                 reason='"data" key should contain either "tensor","ndarray", or "tftensor"',
             )
 
     def validate(self):
-        if not "truth" in self.request:
+        if "truth" not in self.request:
             raise tornado.web.HTTPError(
                 status_code=HTTPStatus.BAD_REQUEST,
                 reason='Expected key "truth" in request body',

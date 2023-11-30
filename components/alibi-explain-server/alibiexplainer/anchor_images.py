@@ -52,5 +52,4 @@ class AnchorImages(ExplainerWrapper):
         arr = np.array(inputs)
         logging.info("Calling explain on image of shape %s", (arr.shape,))
         logging.info("anchor image call with %s", self.kwargs)
-        anchor_exp = self.anchors_image.explain(arr[0], **self.kwargs)
-        return anchor_exp
+        return self.anchors_image.explain(arr[0], **self.kwargs)

@@ -39,7 +39,7 @@ def create_s2i_image(s2i_python_version, model, api_type):
 
 def kind_push_s2i_image(model, api_type):
     img = get_image_name(model, api_type)
-    cmd = "kind load docker-image " + img
+    cmd = f"kind load docker-image {img}"
     logging.info(cmd)
     run(cmd, shell=True, check=True)
 
@@ -60,7 +60,7 @@ class TestTagsPythonS2i(object):
         create_s2i_image(s2i_python_version, "modelmetadata", "rest")
         img = get_image_name("modelmetadata", "rest")
         run(
-            "docker run -d --rm --name 'model-modelmetadata-rest' " + img,
+            f"docker run -d --rm --name 'model-modelmetadata-rest' {img}",
             shell=True,
             check=True,
         )
@@ -71,7 +71,7 @@ class TestTagsPythonS2i(object):
         create_s2i_image(s2i_python_version, "modelmetadata", "grpc")
         img = get_image_name("modelmetadata", "grpc")
         run(
-            "docker run -d --rm --name 'model-modelmetadata-grpc' " + img,
+            f"docker run -d --rm --name 'model-modelmetadata-grpc' {img}",
             shell=True,
             check=True,
         )

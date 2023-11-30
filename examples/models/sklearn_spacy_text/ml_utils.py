@@ -14,8 +14,7 @@ class SpacyTokenTransformer(TransformerMixin):
 
     def transform(self, X, **kwargs):
         f = np.vectorize(SpacyTokenTransformer.transform_to_token, otypes=[object])
-        X_tokenized = f(X)
-        return X_tokenized
+        return f(X)
 
     def fit(self, X, y=None, **fit_params):
         return self
@@ -46,8 +45,7 @@ class CleanTextTransformer(TransformerMixin):
 
     def transform(self, X, **kwargs):
         f = np.vectorize(CleanTextTransformer.transform_clean_text)
-        X_clean = f(X)
-        return X_clean
+        return f(X)
 
     def fit(self, X, y=None, **fit_params):
         return self

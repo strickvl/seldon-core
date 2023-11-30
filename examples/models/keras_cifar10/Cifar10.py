@@ -24,8 +24,7 @@ class Cifar10(object):
         self.model = load_model('model.h5')
 
     def predict(self,X,feature_names):
-        yhat = self.model.predict(X)
-        return yhat
+        return self.model.predict(X)
 
 
 def main():

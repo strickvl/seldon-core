@@ -29,8 +29,7 @@ BENCHMARK_PARALLELISM = 2
 def get_seldon_version():
     ret = Popen("cat ../../version.txt", shell=True, stdout=subprocess.PIPE)
     output = ret.stdout.readline()
-    version = output.decode("utf-8").strip()
-    return version
+    return output.decode("utf-8").strip()
 
 
 def wait_for_pod_shutdown(pod_name, namespace, timeout="10m"):
@@ -71,9 +70,7 @@ def get_pod_name_for_sdep(sdep_name, namespace, attempts=20, sleep=5):
         time.sleep(sleep)
     assert ret.returncode == 0, "Failed to get  pod names: non-zero return code"
     data = json.loads(ret.stdout)
-    pod_names = []
-    for item in data["items"]:
-        pod_names.append(item["metadata"]["name"])
+    pod_names = [item["metadata"]["name"] for item in data["items"]]
     logging.info(
         f"For SeldonDeployment {sdep_name} " f"found following pod: {pod_names}"
     )
@@ -162,7 +159,7 @@ def wait_for_rollout(
 
 
 def retry_run(cmd, attempts=10, sleep=5):
-    for i in range(attempts):
+    for _ in range(attempts):
         ret = run(cmd, shell=True)
         if ret.returncode == 0:
             logging.info(f"Successfully ran command: {cmd}")
@@ -229,11 +226,10 @@ def rest_request(
             method=method,
             predictor_name=predictor_name,
         )
-        if not r.status_code == 200:
-            logging.warning(f"Bad status:{r.status_code}")
-            return None
-        else:
+        if r.status_code == 200:
             return r
+        logging.warning(f"Bad status:{r.status_code}")
+        return None
     except Exception as e:
         logging.warning(f"Failed on REST request {str(e)}")
         return None
@@ -469,8 +465,8 @@ def rest_request_ambassador_auth(
             "tensor": {"shape": shape, "values": arr.tolist()},
         }
     }
-    if namespace is None:
-        response = requests.post(
+    return (
+        requests.post(
             "http://"
             + endpoint
             + "/seldon/"
@@ -479,8 +475,8 @@ def rest_request_ambassador_auth(
             json=payload,
             auth=HTTPBasicAuth(username, password),
         )
-    else:
-        response = requests.post(
+        if namespace is None
+        else requests.post(
             "http://"
             + endpoint
             + "/seldon/"
@@ -491,7 +487,7 @@ def rest_request_ambassador_auth(
             json=payload,
             auth=HTTPBasicAuth(username, password),
         )
-    return response
+    )
 
 
 def grpc_request_ambassador(

@@ -83,15 +83,9 @@ class AlibiDetectConceptDriftModel(
         try:
             X = np.array(inputs)
         except Exception as e:
-            raise Exception(
-                "Failed to initialize NumPy array from inputs: %s, %s" % (e, inputs)
-            )
+            raise Exception(f"Failed to initialize NumPy array from inputs: {e}, {inputs}")
 
-        if self.batch is None:
-            self.batch = X
-        else:
-            self.batch = np.concatenate((self.batch, X))
-
+        self.batch = X if self.batch is None else np.concatenate((self.batch, X))
         self.batch = cast(np.ndarray, self.batch)
 
         if self.batch.shape[0] >= self.drift_batch_size:
@@ -111,9 +105,7 @@ class AlibiDetectConceptDriftModel(
             output = json.loads(json.dumps(cd_preds, cls=NumpyEncoder))
 
             metrics: List[Dict] = []
-            drift = output.get("data")
-
-            if drift:
+            if drift := output.get("data"):
                 _append_drift_metrcs(metrics, drift, "is_drift")
                 _append_drift_metrcs(metrics, drift, "distance")
                 _append_drift_metrcs(metrics, drift, "p_val")

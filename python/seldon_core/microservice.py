@@ -118,6 +118,7 @@ def parse_parameters(parameters: Dict) -> Dict:
     -------
 
     """
+    parsed_parameters = {}
     type_dict = {
         "INT": int,
         "FLOAT": float,
@@ -125,7 +126,6 @@ def parse_parameters(parameters: Dict) -> Dict:
         "STRING": str,
         "BOOL": bool,
     }
-    parsed_parameters = {}
     for param in parameters:
         name = param.get("name")
         value = param.get("value")
@@ -137,19 +137,12 @@ def parse_parameters(parameters: Dict) -> Dict:
                 parsed_parameters[name] = type_dict[type_](value)
             except ValueError:
                 raise SeldonMicroserviceException(
-                    "Bad model parameter: "
-                    + name
-                    + " with value "
-                    + value
-                    + " can't be parsed as a "
-                    + type_,
+                    f"Bad model parameter: {name} with value {value} can't be parsed as a {type_}",
                     reason="MICROSERVICE_BAD_PARAMETER",
                 )
             except KeyError:
                 raise SeldonMicroserviceException(
-                    "Bad model parameter type: "
-                    + type_
-                    + " valid are INT, FLOAT, DOUBLE, STRING, BOOL",
+                    f"Bad model parameter type: {type_} valid are INT, FLOAT, DOUBLE, STRING, BOOL",
                     reason="MICROSERVICE_BAD_PARAMETER",
                 )
     return parsed_parameters
@@ -369,10 +362,8 @@ def _make_rest_server_debug(
 
     def server():
         app = seldon_microservice.get_rest_microservice(user_object, seldon_metrics)
-        try:
+        with contextlib.suppress(NotImplementedError, AttributeError):
             user_object.load()
-        except (NotImplementedError, AttributeError):
-            pass
         if args.tracing:
             logger.info("Tracing branch is active")
             from flask_opentracing import FlaskTracing
@@ -383,11 +374,7 @@ def _make_rest_server_debug(
             FlaskTracing(tracer, True, app, jaeger_extra_tags)
 
         # Timeout not supported in flask development server
-        app.run(
-            host="0.0.0.0",
-            port=args.http_port,
-            threaded=False if args.single_threaded else True,
-        )
+        app.run(host="0.0.0.0", port=args.http_port, threaded=not args.single_threaded)
 
     return server
 
@@ -417,7 +404,7 @@ def _make_rest_server_prod(
             rest_timeout = int(rest_timeout) or 1
 
         options = {
-            "bind": "%s:%s" % ("0.0.0.0", args.http_port),
+            "bind": f"0.0.0.0:{args.http_port}",
             "accesslog": accesslog(args.access_log),
             "loglevel": args.log_level.lower(),
             "timeout": rest_timeout,
@@ -482,11 +469,8 @@ def _run_grpc_server(
         num_threads=args.grpc_threads,
     )
 
-    try:
+    with contextlib.suppress(NotImplementedError, AttributeError):
         user_object.load()
-    except (NotImplementedError, AttributeError):
-        pass
-
     server.add_insecure_port(bind_address)
     server.start()
     _wait_forever(server)
@@ -540,7 +524,7 @@ def _make_rest_metrics_server(
             app.run(host="0.0.0.0", port=args.metrics_port)
         else:
             options = {
-                "bind": "%s:%s" % ("0.0.0.0", args.metrics_port),
+                "bind": f"0.0.0.0:{args.metrics_port}",
                 "accesslog": accesslog(args.access_log),
                 "loglevel": args.log_level.lower(),
                 "timeout": 5000,
@@ -615,7 +599,7 @@ def main():
         user_class = getattr(interface_file, parts[1])
 
     if args.persistence:
-        logger.error(f"Persistence: ignored, persistence is deprecated")
+        logger.error("Persistence: ignored, persistence is deprecated")
     user_object = user_class(**parameters)
 
     http_port = args.http_port

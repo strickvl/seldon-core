@@ -19,5 +19,4 @@ class RedditClassifier(object):
         clean_text = self._clean_text_transformer.transform(X)
         spacy_tokens = self._spacy_tokenizer.transform(clean_text)
         tfidf_features = self._tfidf_vectorizer.transform(spacy_tokens)
-        predictions = self._lr_model.predict_proba(tfidf_features)
-        return predictions
+        return self._lr_model.predict_proba(tfidf_features)

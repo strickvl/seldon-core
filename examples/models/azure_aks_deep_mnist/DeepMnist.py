@@ -3,7 +3,7 @@ import numpy as np
 
 class DeepMnist(object):
     def __init__(self):
-        self.class_names = ["class:{}".format(str(i)) for i in range(10)]
+        self.class_names = [f"class:{str(i)}" for i in range(10)]
         self.sess = tf.Session()
         saver = tf.train.import_meta_graph("model/deep_mnist_model.meta")
         saver.restore(self.sess,tf.train.latest_checkpoint("./model/"))

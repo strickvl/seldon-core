@@ -92,9 +92,9 @@ def start_multithreaded_batch_worker(
     # so we configure credentials even without a supplied token if use_ssl is set.
     credentials = None
     channel_credentials = None
-    if use_ssl or len(call_credentials_token) > 0:
+    if use_ssl or call_credentials_token != "":
         token = None
-        if len(call_credentials_token) > 0:
+        if call_credentials_token != "":
             token = call_credentials_token
         credentials = SeldonCallCredentials(token=token)
         channel_credentials = SeldonChannelCredentials(verify=ssl_verify)
@@ -173,16 +173,14 @@ def _start_input_file_worker(
         The local file to read the data from to be processed
     """
     input_data_file = open(input_data_path, "r")
-    enum_idx = 0
     batch = []
-    for line in input_data_file:
+    for enum_idx, line in enumerate(input_data_file):
         unique_id = str(uuid.uuid1())
         batch.append((enum_idx, unique_id, line))
         # If the batch to send is the size then push to queue and rest batch
         if len(batch) == batch_size:
             q_in.put(batch)
             batch = []
-        enum_idx += 1
     if batch:
         q_in.put(batch)
 
@@ -315,12 +313,11 @@ def _extract_raw_data_multi_request(
         raise ValueError(
             "raw input with predict in mini-batch mode requires data payload"
         )
-    # If-block for ndarray case
     elif "ndarray" in first_input["data"]:
         payload_type = "ndarray"
         names_list = [d["data"]["names"] for d in loaded_data]
         arrays = [np.array(d["data"]["ndarray"]) for d in loaded_data]
-        if not all(names_list[0] == name for name in names_list):
+        if any(names_list[0] != name for name in names_list):
             raise ValueError("All names in mini-batch must be the same.")
         for arr in arrays:
             if arr.shape[0] != 1:
@@ -334,14 +331,13 @@ def _extract_raw_data_multi_request(
         }
         return raw_data, payload_type, raw_input_tags
 
-    # If-block for tensor case
     elif "tensor" in first_input["data"]:
         payload_type = "tensor"
         names_list = [d["data"]["names"] for d in loaded_data]
         tensor_shapes = [d["data"]["tensor"]["shape"] for d in loaded_data]
         tensor_values = [d["data"]["tensor"]["values"] for d in loaded_data]
 
-        if not all(names_list[0] == name for name in names_list):
+        if any(names_list[0] != name for name in names_list):
             raise ValueError("All names in mini-batch must be the same.")
 
         dim_0 = 0
@@ -407,13 +403,10 @@ def _send_batch_predict_multi_request(
     instance_ids = [f"{seldon_puid}-item-{n}" for n, _ in enumerate(input_data)]
     loaded_data = [json.loads(data[2]) for data in input_data]
 
-    predict_kwargs = {}
     tags = {
         "batch_id": batch_id,
     }
-    predict_kwargs["meta"] = tags
-    predict_kwargs["headers"] = {SELDON_PUID_HEADER: seldon_puid}
-
+    predict_kwargs = {"meta": tags, "headers": {SELDON_PUID_HEADER: seldon_puid}}
     try:
         # Process raw input format
         if data_type == "raw":
@@ -511,7 +504,7 @@ def _send_batch_predict_multi_request(
                 "status": {"info": "FAILURE", "reason": str(e), "status": 1},
                 "meta": tags,
             }
-            logger.error("Exception: %s" % e)
+            logger.error(f"Exception: {e}")
             responses.append(json.dumps(error_resp))
 
     return responses
@@ -554,21 +547,20 @@ def _send_batch_predict(
         A string serialised result of the response (or equivalent data with error info)
     """
 
-    predict_kwargs = {}
     tags = {
         "batch_id": batch_id,
         "batch_instance_id": batch_instance_id,
         "batch_index": batch_idx,
     }
-    predict_kwargs["meta"] = tags
-    predict_kwargs["headers"] = {SELDON_PUID_HEADER: batch_instance_id}
+    predict_kwargs = {
+        "meta": tags,
+        "headers": {SELDON_PUID_HEADER: batch_instance_id},
+    }
     try:
         data = json.loads(input_raw)
         if data_type == "data":
             data_np = np.array(data)
             predict_kwargs["data"] = data_np
-        elif data_type == "str":
-            predict_kwargs["str_data"] = data
         elif data_type == "json":
             predict_kwargs["json_data"] = data
         elif data_type == "raw":
@@ -580,6 +572,8 @@ def _send_batch_predict(
             data["meta"]["tags"].update(tags)
             predict_kwargs["raw_data"] = data
 
+        elif data_type == "str":
+            predict_kwargs["str_data"] = data
         logger.debug(f"calling sc.predict with {predict_kwargs}")
 
         str_output = None
@@ -601,7 +595,7 @@ def _send_batch_predict(
             "status": {"info": "FAILURE", "reason": str(e), "status": 1},
             "meta": tags,
         }
-        logger.error("Exception: %s" % e)
+        logger.error(f"Exception: {e}")
         str_output = json.dumps(error_resp)
 
     return str_output
@@ -678,7 +672,7 @@ def _send_batch_feedback(
             "status": {"info": "FAILURE", "reason": str(e), "status": 1},
             "meta": meta,
         }
-        logger.error("Exception: %s" % e)
+        logger.error(f"Exception: {e}")
         str_output = json.dumps(error_resp)
 
     return str_output

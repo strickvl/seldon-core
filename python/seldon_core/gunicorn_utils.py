@@ -28,9 +28,7 @@ def accesslog(flag: bool) -> Union[str, None]:
     Enable / disable access log in Gunicorn depending on the flag.
     """
 
-    if flag:
-        return "-"
-    return None
+    return "-" if flag else None
 
 
 def threads(threads: int, single_threaded: bool) -> int:
@@ -38,10 +36,7 @@ def threads(threads: int, single_threaded: bool) -> int:
     Number of threads to run in each Gunicorn worker.
     """
 
-    if single_threaded:
-        return 1
-
-    return threads
+    return 1 if single_threaded else threads
 
 
 class StandaloneApplication(BaseApplication):

@@ -90,14 +90,8 @@ def generate_batch(contract: Dict, n: int, field: str) -> np.ndarray:
     for feature_def in contract[field]:
         ty_set.add(feature_def["ftype"])
         if feature_def["ftype"] == "continuous":
-            if "range" in feature_def:
-                f_range = feature_def["range"]
-            else:
-                f_range = ["inf", "inf"]
-            if "shape" in feature_def:
-                shape = [n] + feature_def["shape"]
-            else:
-                shape = [n, 1]
+            f_range = feature_def["range"] if "range" in feature_def else ["inf", "inf"]
+            shape = [n] + feature_def["shape"] if "shape" in feature_def else [n, 1]
             batch = gen_continuous(f_range, shape)
             batch = np.around(batch, decimals=3)
             batch = reconciliate_cont_type(batch, feature_def["dtype"])
@@ -108,9 +102,8 @@ def generate_batch(contract: Dict, n: int, field: str) -> np.ndarray:
         feature_batches.append(batch)
     if len(ty_set) == 1:
         return np.concatenate(feature_batches, axis=1)
-    else:
-        out = np.empty((n, len(contract["features"])), dtype=object)
-        return np.concatenate(feature_batches, axis=1, out=out)
+    out = np.empty((n, len(contract["features"])), dtype=object)
+    return np.concatenate(feature_batches, axis=1, out=out)
 
 
 def unfold_contract(contract: Dict) -> Dict:
@@ -127,10 +120,7 @@ def unfold_contract(contract: Dict) -> Dict:
        Full contract
 
     """
-    unfolded_contract: Dict = {}
-    unfolded_contract["targets"] = []
-    unfolded_contract["features"] = []
-
+    unfolded_contract: Dict = {"targets": [], "features": []}
     for feature in contract["features"]:
         if feature.get("repeat") is not None:
             for i in range(feature.get("repeat")):
@@ -157,10 +147,7 @@ def unfold_contract(contract: Dict) -> Dict:
 
 
 def get_class_names(contract: Dict) -> List[str]:
-    names = []
-    for feature in contract["features"]:
-        names.append(feature["name"])
-    return names
+    return [feature["name"] for feature in contract["features"]]
 
 
 def run_send_feedback(args):
@@ -175,25 +162,17 @@ def run_send_feedback(args):
     """
     contract = json.load(open(args.contract, "r"))
     contract = unfold_contract(contract)
-    endpoint = args.host + ":" + str(args.port)
+    endpoint = f"{args.host}:{str(args.port)}"
     sc = SeldonClient(microservice_endpoint=endpoint)
 
-    for i in range(args.n_requests):
+    for _ in range(args.n_requests):
         batch = generate_batch(contract, args.batch_size, "features")
         if args.prnt:
             print("-" * 40)
             print("SENDING NEW REQUEST:")
 
-        if not args.grpc:
-            transport = "rest"
-        else:
-            transport = "grpc"
-
-        if args.tensor:
-            payload_type = "tensor"
-        else:
-            payload_type = "ndarray"
-
+        transport = "rest" if not args.grpc else "grpc"
+        payload_type = "tensor" if args.tensor else "ndarray"
         response_predict = sc.microservice(
             data=batch, transport=transport, payload_type=payload_type, method="predict"
         )
@@ -223,7 +202,7 @@ def run_method(args, method):
     endpoint = f"{args.host}:{args.port}"
     sc = SeldonClient(microservice_endpoint=endpoint)
 
-    for i in range(args.n_requests):
+    for _ in range(args.n_requests):
         batch: ndarray = generate_batch(contract, args.batch_size, "features")
         if args.prnt:
             print(f"{'-' * 40}\nSENDING NEW REQUEST:\n")
@@ -281,7 +260,7 @@ def main():
         log_level = logging.ERROR
     logging.basicConfig(level=log_level, format=LOG_FORMAT)
 
-    if args.endpoint == "predict" or args.endpoint == "transform-input":
+    if args.endpoint in ["predict", "transform-input"]:
         run_method(args, args.endpoint)
     elif args.endpoint == "send-feedback":
         run_send_feedback(args)

@@ -27,6 +27,6 @@ def test_integrated_gradients():
     x_train = sequence.pad_sequences(x_train, maxlen=maxlen)
     x_test = sequence.pad_sequences(x_test, maxlen=maxlen)
 
-    explanation = integrated_gradients.explain(x_test[0:1].tolist())
+    explanation = integrated_gradients.explain(x_test[:1].tolist())
     attrs = explanation["attributions"]
     assert len(attrs) > 0

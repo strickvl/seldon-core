@@ -327,9 +327,6 @@ def parse_args(sys_args):
     args, _ = parser.parse_known_args(sys_args)
 
     argdDict = vars(args).copy()
-    if "explainer" in argdDict:
-        extra = vars(args.explainer)
-    else:
-        extra = {}
+    extra = vars(args.explainer) if "explainer" in argdDict else {}
     logging.info("Extra args: %s", extra)
     return args, extra

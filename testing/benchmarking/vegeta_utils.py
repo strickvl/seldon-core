@@ -15,7 +15,7 @@ def run_model(model_name):
             f"kubectl rollout status deploy/$(kubectl get deploy -l seldon-deployment-id={metaName} -o jsonpath='{{.items[0].metadata.name}}')",
             shell=True,
         )
-        for i in range(60):
+        for _ in range(60):
             ret = Popen(
                 f"kubectl get sdep {metaName} -o jsonpath='{{.status.state}}'",
                 shell=True,
@@ -25,7 +25,7 @@ def run_model(model_name):
             if state == "Available":
                 break
             time.sleep(1)
-        for i in range(60):
+        for _ in range(60):
             ret = Popen(
                 f"kubectl get pods -l seldon-deployment-id={metaName} -o json",
                 shell=True,
@@ -91,6 +91,6 @@ def run_ghz_test(payload, ghz_job, wait_time):
         )
         raw = ret.stdout.readline().decode("utf-8")
         results = json.loads(raw)
-        run(f"kubectl delete -f tf-ghz-cfg", shell=True)
+        run("kubectl delete -f tf-ghz-cfg", shell=True)
         run(f"kubectl delete -f {ghz_job}", shell=True)
         return results

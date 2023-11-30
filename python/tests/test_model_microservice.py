@@ -76,20 +76,16 @@ class UserObject(SeldonComponent):
             self.inc_meta = kwargs.get("meta")
         if self.ret_nparray:
             return self.nparray
-        else:
-            logging.info("Predict called - will run identity function")
-            logging.info(X)
-            return X
+        logging.info("Predict called - will run identity function")
+        logging.info(X)
+        return X
 
     def send_feedback(self, features, feature_names, reward, truth, routing=None):
         self.rewards.append(reward)
         logging.info("Feedback called")
 
     def tags(self):
-        if self.ret_meta:
-            return {"inc_meta": self.inc_meta}
-        else:
-            return {"mytag": 1}
+        return {"inc_meta": self.inc_meta} if self.ret_meta else {"mytag": 1}
 
     def metrics(self):
         if self.metrics_ok:
@@ -418,7 +414,7 @@ def test_model_lowlevel_multi_form_data_text_file_ok():
         "/predict",
         data={
             "meta": '{"puid":"1234"}',
-            "binData": (f"./tests/resources/test.txt", "test.txt"),
+            "binData": ("./tests/resources/test.txt", "test.txt"),
         },
         content_type="multipart/form-data",
     )
@@ -440,7 +436,7 @@ def test_model_lowlevel_multi_form_data_img_file_ok():
         "/predict",
         data={
             "meta": '{"puid":"1234"}',
-            "binData": (f"./tests/resources/test.png", "test.png"),
+            "binData": ("./tests/resources/test.png", "test.png"),
         },
         content_type="multipart/form-data",
     )
@@ -461,7 +457,7 @@ def test_model_lowlevel_multi_form_data_strData_ok():
         "/predict",
         data={
             "meta": '{"puid":"1234"}',
-            "strData": (f"./tests/resources/test.txt", "test.txt"),
+            "strData": ("./tests/resources/test.txt", "test.txt"),
         },
         content_type="multipart/form-data",
     )
@@ -483,7 +479,7 @@ def test_model_lowlevel_multi_form_data_strData_non200status():
         "/predict",
         data={
             "meta": '{"puid":"1234"}',
-            "strData": (f"./tests/resources/test.txt", "test.txt"),
+            "strData": ("./tests/resources/test.txt", "test.txt"),
         },
         content_type="multipart/form-data",
     )
@@ -596,7 +592,7 @@ def test_model_tftensor_ok():
     datadef = prediction_pb2.DefaultData(tftensor=tf.make_tensor_proto(arr))
     request = prediction_pb2.SeldonMessage(data=datadef)
     jStr = json_format.MessageToJson(request)
-    rv = client.get("/predict?json=" + jStr)
+    rv = client.get(f"/predict?json={jStr}")
     j = json.loads(rv.data)
     logging.info(j)
     assert rv.status_code == 200

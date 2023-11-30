@@ -26,26 +26,21 @@ class UserObject:
             self.inc_meta = kwargs.get("meta")
         if self.ret_nparray:
             return self.nparray
-        else:
-            logging.info("Transform input called - will run identity function")
-            logging.info(X)
-            return X
+        logging.info("Transform input called - will run identity function")
+        logging.info(X)
+        return X
 
     def transform_output(self, X, features_names, **kwargs):
         if self.ret_meta:
             self.inc_meta = kwargs.get("meta")
         if self.ret_nparray:
             return self.nparray
-        else:
-            logging.info("Transform output called - will run identity function")
-            logging.info(X)
+        logging.info("Transform output called - will run identity function")
+        logging.info(X)
         return X
 
     def tags(self):
-        if self.ret_meta:
-            return {"inc_meta": self.inc_meta}
-        else:
-            return {"mytag": 1}
+        return {"inc_meta": self.inc_meta} if self.ret_meta else {"mytag": 1}
 
     def metrics(self):
         if self.metrics_ok:
@@ -71,16 +66,14 @@ class UserObjectLowLevel:
         datadef = prediction_pb2.DefaultData(
             tensor=prediction_pb2.Tensor(shape=(2, 1), values=arr)
         )
-        request = prediction_pb2.SeldonMessage(data=datadef)
-        return request
+        return prediction_pb2.SeldonMessage(data=datadef)
 
     def transform_output_grpc(self, X):
         arr = np.array([9, 9])
         datadef = prediction_pb2.DefaultData(
             tensor=prediction_pb2.Tensor(shape=(2, 1), values=arr)
         )
-        request = prediction_pb2.SeldonMessage(data=datadef)
-        return request
+        return prediction_pb2.SeldonMessage(data=datadef)
 
 
 class UserObjectLowLevelGrpc:
@@ -94,16 +87,14 @@ class UserObjectLowLevelGrpc:
         datadef = prediction_pb2.DefaultData(
             tensor=prediction_pb2.Tensor(shape=(2, 1), values=arr)
         )
-        request = prediction_pb2.SeldonMessage(data=datadef)
-        return request
+        return prediction_pb2.SeldonMessage(data=datadef)
 
     def transform_output_grpc(self, X):
         arr = np.array([9, 9])
         datadef = prediction_pb2.DefaultData(
             tensor=prediction_pb2.Tensor(shape=(2, 1), values=arr)
         )
-        request = prediction_pb2.SeldonMessage(data=datadef)
-        return request
+        return prediction_pb2.SeldonMessage(data=datadef)
 
 
 class UserObjectLowLevelRaw:
@@ -123,10 +114,7 @@ class UserObjectLowLevelRaw:
             tensor=prediction_pb2.Tensor(shape=(2, 1), values=arr)
         )
         response = prediction_pb2.SeldonMessage(data=datadef)
-        if is_proto:
-            return response
-        else:
-            return seldon_message_to_json(response)
+        return response if is_proto else seldon_message_to_json(response)
 
     def transform_output_raw(
         self, request: Union[prediction_pb2.SeldonMessage, List, Dict]
@@ -140,10 +128,7 @@ class UserObjectLowLevelRaw:
         )
         response = prediction_pb2.SeldonMessage(data=datadef)
 
-        if is_proto:
-            return response
-        else:
-            return seldon_message_to_json(response)
+        return response if is_proto else seldon_message_to_json(response)
 
 
 class UserObjectLowLevelRawInherited(SeldonComponent):
@@ -163,10 +148,7 @@ class UserObjectLowLevelRawInherited(SeldonComponent):
             tensor=prediction_pb2.Tensor(shape=(2, 1), values=arr)
         )
         response = prediction_pb2.SeldonMessage(data=datadef)
-        if is_proto:
-            return response
-        else:
-            return seldon_message_to_json(response)
+        return response if is_proto else seldon_message_to_json(response)
 
     def transform_output_raw(
         self, request: Union[prediction_pb2.SeldonMessage, List, Dict]
@@ -179,10 +161,7 @@ class UserObjectLowLevelRawInherited(SeldonComponent):
             tensor=prediction_pb2.Tensor(shape=(2, 1), values=arr)
         )
         response = prediction_pb2.SeldonMessage(data=datadef)
-        if is_proto:
-            return response
-        else:
-            return seldon_message_to_json(response)
+        return response if is_proto else seldon_message_to_json(response)
 
 
 def test_transformer_input_ok():

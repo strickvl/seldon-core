@@ -109,10 +109,7 @@ parser_metrics = subparsers.add_parser(str(AlibiDetectMethod.metrics_server))
 args, _ = parser.parse_known_args()
 
 argdDict = vars(args).copy()
-if "alibi" in argdDict:
-    extra = vars(args.alibi)
-else:
-    extra = {}
+extra = vars(args.alibi) if "alibi" in argdDict else {}
 logging.info("Extra args: %s", extra)
 
 if __name__ == "__main__":

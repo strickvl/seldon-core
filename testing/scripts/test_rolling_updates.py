@@ -47,12 +47,16 @@ class TestRollingHttp(object):
             r = rest_request_ambassador("mymodel", namespace, api_gateway)
             assert r.status_code == 200
             res = r.json()
-            assert (res["data"]["tensor"]["values"] == [1.0, 2.0, 3.0, 4.0]) or (
-                res["data"]["tensor"]["values"] == [5.0, 6.0, 7.0, 8.0]
-            )
-            if (not r.status_code == 200) or (
-                res["data"]["tensor"]["values"] == [5.0, 6.0, 7.0, 8.0]
-            ):
+            assert res["data"]["tensor"]["values"] in [
+                [1.0, 2.0, 3.0, 4.0],
+                [5.0, 6.0, 7.0, 8.0],
+            ]
+            if r.status_code != 200 or res["data"]["tensor"]["values"] == [
+                5.0,
+                6.0,
+                7.0,
+                8.0,
+            ]:
                 break
             time.sleep(1)
         assert i < 100
@@ -78,12 +82,16 @@ class TestRollingHttp(object):
             r = rest_request_ambassador("mymodel", namespace, api_gateway)
             assert r.status_code == 200
             res = r.json()
-            assert (res["data"]["tensor"]["values"] == [1.0, 2.0, 3.0, 4.0]) or (
-                res["data"]["tensor"]["values"] == [5.0, 6.0, 7.0, 8.0]
-            )
-            if (not r.status_code == 200) or (
-                res["data"]["tensor"]["values"] == [5.0, 6.0, 7.0, 8.0]
-            ):
+            assert res["data"]["tensor"]["values"] in [
+                [1.0, 2.0, 3.0, 4.0],
+                [5.0, 6.0, 7.0, 8.0],
+            ]
+            if r.status_code != 200 or res["data"]["tensor"]["values"] == [
+                5.0,
+                6.0,
+                7.0,
+                8.0,
+            ]:
                 break
             time.sleep(1)
         assert i < 100
@@ -109,12 +117,16 @@ class TestRollingHttp(object):
             r = rest_request_ambassador("mymodel", namespace, api_gateway)
             assert r.status_code == 200
             res = r.json()
-            assert (res["data"]["tensor"]["values"] == [1.0, 2.0, 3.0, 4.0]) or (
-                res["data"]["tensor"]["values"] == [5.0, 6.0, 7.0, 8.0]
-            )
-            if (not r.status_code == 200) or (
-                res["data"]["tensor"]["values"] == [5.0, 6.0, 7.0, 8.0]
-            ):
+            assert res["data"]["tensor"]["values"] in [
+                [1.0, 2.0, 3.0, 4.0],
+                [5.0, 6.0, 7.0, 8.0],
+            ]
+            if r.status_code != 200 or res["data"]["tensor"]["values"] == [
+                5.0,
+                6.0,
+                7.0,
+                8.0,
+            ]:
                 break
             time.sleep(1)
         assert i < 100
@@ -188,12 +200,16 @@ class TestRollingHttp(object):
             r = rest_request_ambassador("mymodel", namespace, api_gateway)
             assert r.status_code == 200
             res = r.json()
-            assert (res["data"]["tensor"]["values"] == [1.0, 2.0, 3.0, 4.0]) or (
-                res["data"]["tensor"]["values"] == [5.0, 6.0, 7.0, 8.0]
-            )
-            if (not r.status_code == 200) or (
-                res["data"]["tensor"]["values"] == [5.0, 6.0, 7.0, 8.0]
-            ):
+            assert res["data"]["tensor"]["values"] in [
+                [1.0, 2.0, 3.0, 4.0],
+                [5.0, 6.0, 7.0, 8.0],
+            ]
+            if r.status_code != 200 or res["data"]["tensor"]["values"] == [
+                5.0,
+                6.0,
+                7.0,
+                8.0,
+            ]:
                 break
             time.sleep(1)
         assert i < 100

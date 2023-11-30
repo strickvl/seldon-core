@@ -65,10 +65,7 @@ soft, hard = resource.getrlimit(rsrc)
 print('RLIMIT_NOFILE soft limit changed to :', soft)
 
 def getEnviron(key,default):
-    if key in os.environ:
-        return os.environ[key]
-    else:
-        return default
+    return os.environ.get(key, default)
     
 class GrpcLocust(Locust):
     def __init__(self, *args, **kwargs):
@@ -90,7 +87,7 @@ class ApiUser(GrpcLocust):
             if r.status_code == 200:
                 j = json.loads(r.content)
                 self.access_token =  j["access_token"]
-                print("got access token "+self.access_token)
+                print(f"got access token {self.access_token}")
             else:
                 print("failed to get access token")
                 sys.exit(1)

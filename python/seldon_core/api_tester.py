@@ -21,13 +21,9 @@ def get_seldon_client(args) -> SeldonClient:
        A Seldon Client
 
     """
-    endpoint = args.host + ":" + str(args.port)
+    endpoint = f"{args.host}:{str(args.port)}"
     gateway_endpoint = endpoint
-    if args.grpc:
-        transport = "grpc"
-    else:
-        transport = "rest"
-
+    transport = "grpc" if args.grpc else "rest"
     return SeldonClient(
         gateway="ambassador",
         gateway_endpoint=gateway_endpoint,
@@ -50,12 +46,8 @@ def run_send_feedback(args):
     contract = json.load(open(args.contract, "r"))
     contract = unfold_contract(contract)
     sc = get_seldon_client(args)
-    if args.grpc:
-        transport = "grpc"
-    else:
-        transport = "rest"
-
-    for i in range(args.n_requests):
+    transport = "grpc" if args.grpc else "rest"
+    for _ in range(args.n_requests):
         batch = generate_batch(contract, args.batch_size, "features")
         response_predict = sc.predict(data=batch, deployment_name=args.deployment)
         response_feedback = sc.feedback(
@@ -84,13 +76,10 @@ def run_predict(args):
     feature_names = [feature["name"] for feature in contract["features"]]
 
     sc = get_seldon_client(args)
-    if args.grpc:
-        transport = "grpc"
-    else:
-        transport = "rest"
+    transport = "grpc" if args.grpc else "rest"
     payload_type = "tensor" if args.tensor else "ndarray"
 
-    for i in range(args.n_requests):
+    for _ in range(args.n_requests):
         batch = generate_batch(contract, args.batch_size, "features")
         if args.prnt:
             print(f"{'-' * 40}\nSENDING NEW REQUEST:\n")

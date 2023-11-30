@@ -270,13 +270,13 @@ class MyStub:
     def Predict(self, **kwargs):
         return prediction_pb2.SeldonMessage(strData="predict")
 
-    def TransformInput(selfself, **kwargs):
+    def TransformInput(self, **kwargs):
         return prediction_pb2.SeldonMessage(strData="transform-input")
 
-    def TransformOutput(selfself, **kwargs):
+    def TransformOutput(self, **kwargs):
         return prediction_pb2.SeldonMessage(strData="transform-output")
 
-    def Route(selfself, **kwargs):
+    def Route(self, **kwargs):
         return prediction_pb2.SeldonMessage(strData="route")
 
 

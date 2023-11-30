@@ -17,10 +17,10 @@ class Detector:
             self.od = dill.load(model_f)
 
     def predict(self, X, feature_names=[]):
-        logging.info("Input: " + str(X))
+        logging.info(f"Input: {str(X)}")
 
         X_prep = self.preprocessor.transform(X)
         output = self.od.predict(X_prep)['data']['is_outlier']
 
-        logging.info("Output: " + str(output))
+        logging.info(f"Output: {str(output)}")
         return output

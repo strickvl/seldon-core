@@ -18,9 +18,8 @@ def prepare_data(test_size):
 
     if math.isclose(test_size, 0.0):
         return data, None
-    else:
-        train, test = train_test_split(data, test_size=test_size)
-        return train, test
+    train, test = train_test_split(data, test_size=test_size)
+    return train, test
 
 
 def run(args):

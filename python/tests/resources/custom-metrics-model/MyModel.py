@@ -4,10 +4,7 @@ from seldon_core.user_model import SeldonResponse
 
 
 def reshape(x):
-    if len(x.shape) < 2:
-        return x.reshape(1, -1)
-    else:
-        return x
+    return x.reshape(1, -1) if len(x.shape) < 2 else x
 
 
 class MyModel:

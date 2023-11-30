@@ -112,7 +112,7 @@ class SeldonMetrics:
         # Read a corresponding worker's metric data with lock as Proxy objects
         # are not thread-safe, see "Thread safety of proxies" here
         # https://docs.python.org/3.7/library/multiprocessing.html#programming-guidelines
-        logger.debug("Updating metrics: {}".format(custom_metrics))
+        logger.debug(f"Updating metrics: {custom_metrics}")
         with self._lock:
             worker_data = self.data.get(self.worker_id_func(), {})
         logger.debug("Read current metrics data from shared memory")
@@ -299,20 +299,19 @@ def validate_metrics(metrics: List[Dict]) -> bool:
     -------
 
     """
-    if isinstance(metrics, (list,)):
-        for metric in metrics:
-            if not ("key" in metric and "value" in metric and "type" in metric):
-                return False
-            if not (
-                metric["type"] == COUNTER
-                or metric["type"] == GAUGE
-                or metric["type"] == TIMER
-            ):
-                return False
-            try:
-                metric["value"] + 1
-            except TypeError:
-                return False
-    else:
+    if not isinstance(metrics, (list,)):
         return False
+    for metric in metrics:
+        if (
+            "key" not in metric
+            or "value" not in metric
+            or "type" not in metric
+        ):
+            return False
+        if metric["type"] not in [COUNTER, GAUGE, TIMER]:
+            return False
+        try:
+            metric["value"] + 1
+        except TypeError:
+            return False
     return True

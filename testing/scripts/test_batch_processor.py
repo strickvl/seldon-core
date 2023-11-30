@@ -34,7 +34,7 @@ class TestBatchWorker(object):
         output_data_path = "batch-standard-output-data.txt"
 
         with open(input_data_path, "w") as f:
-            for i in range(batch_size):
+            for _ in range(batch_size):
                 f.write("[[1,2,3,4]]\n")
 
         logging.info("Sending first batch (rest): mini-batch size=1")

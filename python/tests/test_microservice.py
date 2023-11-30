@@ -36,7 +36,7 @@ def test_microservice_version():
 
 def test_model_template_app_rest(microservice):
     data = '{"data":{"names":["a","b"],"ndarray":[[1.0,2.0]]}}'
-    response = requests.get("http://127.0.0.1:9000/predict", params="json=%s" % data)
+    response = requests.get("http://127.0.0.1:9000/predict", params=f"json={data}")
     response.raise_for_status()
     assert response.json() == {
         "data": {"names": ["t:0", "t:1"], "ndarray": [[1.0, 2.0]]},
@@ -49,7 +49,7 @@ def test_model_template_app_rest(microservice):
         '"ndarray":[[1.0,2.0]]}},"reward":1}'
     )
     response = requests.get(
-        "http://127.0.0.1:9000/send-feedback", params="json=%s" % data
+        "http://127.0.0.1:9000/send-feedback", params=f"json={data}"
     )
     response.raise_for_status()
     assert response.json() == {"data": {"ndarray": []}, "meta": {}}
@@ -57,7 +57,7 @@ def test_model_template_app_rest(microservice):
 
 def test_model_template_app_rest_tags(microservice):
     data = '{"meta":{"tags":{"foo":"bar"}},"data":{"names":["a","b"],"ndarray":[[1.0,2.0]]}}'
-    response = requests.get("http://127.0.0.1:9000/predict", params="json=%s" % data)
+    response = requests.get("http://127.0.0.1:9000/predict", params=f"json={data}")
     response.raise_for_status()
     assert response.json() == {
         "data": {"names": ["t:0", "t:1"], "ndarray": [[1.0, 2.0]]},
@@ -67,7 +67,7 @@ def test_model_template_app_rest_tags(microservice):
 
 def test_model_template_app_rest_metrics(microservice):
     data = '{"meta":{"metrics":[{"key":"mygauge","type":"GAUGE","value":100}]},"data":{"names":["a","b"],"ndarray":[[1.0,2.0]]}}'
-    response = requests.get("http://127.0.0.1:9000/predict", params="json=%s" % data)
+    response = requests.get("http://127.0.0.1:9000/predict", params=f"json={data}")
     response.raise_for_status()
     assert response.json() == {
         "data": {"names": ["t:0", "t:1"], "ndarray": [[1.0, 2.0]]},
@@ -86,7 +86,7 @@ def test_model_template_app_rest_metrics_endpoint(microservice):
 )
 def test_model_template_app_rest_submodule(microservice):
     data = '{"data":{"names":["a","b"],"ndarray":[[1.0,2.0]]}}'
-    response = requests.get("http://127.0.0.1:9000/predict", params="json=%s" % data)
+    response = requests.get("http://127.0.0.1:9000/predict", params=f"json={data}")
     response.raise_for_status()
     assert response.json() == {
         "data": {"names": ["t:0", "t:1"], "ndarray": [[1.0, 2.0]]},
@@ -99,7 +99,7 @@ def test_model_template_app_rest_submodule(microservice):
         '"ndarray":[[1.0,2.0]]}},"reward":1}'
     )
     response = requests.get(
-        "http://127.0.0.1:9000/send-feedback", params="json=%s" % data
+        "http://127.0.0.1:9000/send-feedback", params=f"json={data}"
     )
     response.raise_for_status()
     assert response.json() == {"data": {"ndarray": []}, "meta": {}}
@@ -189,7 +189,7 @@ def test_model_template_app_grpc_metrics(microservice):
 )
 def test_model_template_app_tracing_config(microservice):
     data = '{"data":{"names":["a","b"],"ndarray":[[1.0,2.0]]}}'
-    response = requests.get("http://127.0.0.1:9000/predict", params="json=%s" % data)
+    response = requests.get("http://127.0.0.1:9000/predict", params=f"json={data}")
     response.raise_for_status()
     assert response.json() == {
         "data": {"names": ["t:0", "t:1"], "ndarray": [[1.0, 2.0]]},
@@ -202,7 +202,7 @@ def test_model_template_app_tracing_config(microservice):
         '"ndarray":[[1.0,2.0]]}},"reward":1}'
     )
     response = requests.get(
-        "http://127.0.0.1:9000/send-feedback", params="json=%s" % data
+        "http://127.0.0.1:9000/send-feedback", params=f"json={data}"
     )
     response.raise_for_status()
     assert response.json() == {"data": {"ndarray": []}, "meta": {}}

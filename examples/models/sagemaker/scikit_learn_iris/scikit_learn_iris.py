@@ -18,8 +18,7 @@ def model_fn(model_dir):
     model_dir_env = os.environ["SAGEMAKER_MODEL_DIRECTORY"]
     logger.info("Using model directory %s",model_dir_env)
     files.download_and_extract(model_dir_env, "", model_dir)
-    clf = joblib.load(os.path.join(model_dir, "model.joblib"))
-    return clf
+    return joblib.load(os.path.join(model_dir, "model.joblib"))
 
 def predict_fn(data, model):
     if len(data.shape) == 1:
